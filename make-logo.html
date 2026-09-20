@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logo setup</title>
+<style>body{font-family:Segoe UI,Arial,sans-serif;max-width:520px;margin:60px auto;padding:0 20px;color:#1c2230}
+h1{font-size:20px;color:#12306b}button{background:#12306b;color:#fff;border:0;border-radius:6px;padding:10px 16px;font-size:15px;cursor:pointer}
+button:disabled{opacity:.5}#p{margin:16px 0;min-height:70px}#p img{max-height:70px;max-width:200px}.n{color:#667085;font-size:13px}</style></head>
+<body>
+<h1>Embed your logo</h1>
+<p>Choose your <b>logo.png</b>. This creates <b>logo.js</b>, which you save next to <b>index.html</b>. It lets the logo appear in downloaded PDFs however you open the app.</p>
+<input id="f" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+<div id="p"></div>
+<button id="b" disabled>Download logo.js</button>
+<p class="n">Tip: a logo under about 300 KB keeps the app fast.</p>
+<script>
+let data = '';
+document.getElementById('f').addEventListener('change', (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = () => { data = String(r.result); document.getElementById('p').innerHTML = '<img src="' + data + '" alt="">'; document.getElementById('b').disabled = false; };
+  r.readAsDataURL(file);
+});
+document.getElementById('b').addEventListener('click', () => {
+  const blob = new Blob(['window.LOGO_DATA = ' + JSON.stringify(data) + ';\n'], { type: 'text/javascript' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'logo.js'; a.click();
+});
+</script></body></html>

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JangAfrica Invoice Manager</title>
+  <link rel="icon" href="logo.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --navy: #12306b;
+      --red: #e3121b;
+      --green: #1f9d4a;
+      --amber: #b7791f;
+      --ink: #1c2230;
+      --muted: #667085;
+      --line: #d5dae3;
+      --bg: #eef1f6;
+      --panel: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; font-family: "Segoe UI", Calibri, Arial, sans-serif; background: var(--bg); color: var(--ink); }
+
+    /* ---- top bar ---- */
+    .topbar { background: var(--navy); color: #fff; padding: 10px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .topbar h1 { margin: 0; font-size: 19px; font-weight: 600; }
+    .topbar .brand { opacity: .75; font-size: 14px; }
+    .tabs { display: flex; gap: 4px; margin-left: 12px; flex-wrap: wrap; }
+    .tabs button { background: transparent; border: none; color: #cdd7ee; padding: 8px 14px; border-radius: 6px; font-size: 14px; }
+    .tabs button.active { background: #fff; color: var(--navy); font-weight: 600; }
+    .toplogo { background: #fff; border-radius: 8px; padding: 3px 6px; display: flex; align-items: center; }
+    .toplogo img { height: 30px; max-width: 110px; object-fit: contain; display: block; }
+    .userbox { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #cdd7ee; flex-wrap: wrap; }
+    .userbox .who { margin-right: 4px; }
+    .userbox .who b { color: #fff; font-weight: 600; }
+    button.ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.4); padding: 6px 11px; font-size: 13px; }
+    button.ghost:hover { background: rgba(255,255,255,.12); }
+
+    /* ---- login ---- */
+    #loginView { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(160deg, var(--navy) 0%, #0b1d47 100%); }
+    .login-card { width: min(400px, 100%); background: #fff; border-radius: 12px; padding: 30px 28px 26px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+    .login-card .lg { text-align: center; }
+    .login-card .lg img { max-height: 76px; max-width: 220px; object-fit: contain; margin-bottom: 8px; }
+    .login-card h2 { text-align: center; margin: 4px 0 2px; font-size: 21px; color: var(--navy); }
+    .login-card .sub { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+    label.check { display: flex; align-items: center; gap: 8px; color: var(--ink); }
+    label.check input { width: auto; margin: 0; }
+    #loginBtn { width: 100%; margin-top: 4px; padding: 11px 14px; }
+    #loginError { color: var(--red); font-size: 13px; min-height: 18px; margin: 2px 0 8px; }
+
+    /* ---- shared form bits ---- */
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+    input, select, textarea { width: 100%; padding: 9px 10px; margin-top: 4px; border: 1px solid var(--line); border-radius: 6px; font: inherit; color: var(--ink); background: #fff; }
+    textarea { resize: vertical; }
+    input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--navy); outline-offset: 1px; }
+    button { font: inherit; cursor: pointer; border-radius: 6px; padding: 9px 14px; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+    button.primary { background: var(--navy); border-color: var(--navy); color: #fff; font-weight: 600; }
+    button.primary:disabled { opacity: .6; cursor: wait; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* ---- new invoice view ---- */
+    .layout { display: grid; grid-template-columns: 380px 1fr; gap: 20px; padding: 20px; align-items: start; }
+    @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+    .panel h2 { font-size: 15px; margin: 18px 0 8px; }
+    .item { border: 1px solid var(--line); border-radius: 6px; padding: 10px; margin-bottom: 10px; background: #fafbfd; }
+    .item label { margin-bottom: 8px; }
+    .item .remove { background: none; border: none; color: var(--red); font-size: 13px; padding: 2px 0; }
+    .add { width: 100%; border-style: dashed; color: var(--navy); }
+    .total-line { display: flex; justify-content: space-between; font-weight: 600; margin: 14px 0 4px; }
+    #generate { width: 100%; margin-top: 8px; }
+    #status { font-size: 13px; margin-top: 12px; min-height: 18px; color: var(--muted); }
+    #status.error { color: var(--red); }
+    #status.ok { color: var(--green); }
+    #result { margin-top: 10px; display: none; gap: 8px; flex-wrap: wrap; }
+    #result.show { display: flex; }
+    #result a, #result button { flex: 1 1 auto; text-align: center; text-decoration: none; font-size: 14px; }
+    #result a { border: 1px solid var(--line); border-radius: 6px; padding: 9px 14px; color: var(--ink); background: #fff; }
+    .preview { overflow-x: auto; }
+    .sheet-wrap { width: max-content; margin: 0 auto; box-shadow: 0 2px 14px rgba(20,30,60,.18); background: #fff; }
+
+    /* ---- list views (invoices, receipts) ---- */
+    .track { padding: 20px; max-width: 1280px; margin: 0 auto; }
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .cards.c3 { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 800px) { .cards, .cards.c3 { grid-template-columns: repeat(2, 1fr); } }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+    .card .k { font-size: 13px; color: var(--muted); }
+    .card .v { font-size: 22px; font-weight: 600; margin-top: 4px; }
+    .card .s { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+    .card.red .v { color: var(--red); }
+    .card.green .v { color: var(--green); }
+    .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 18px 0 10px; }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chips button { border-radius: 999px; padding: 6px 12px; font-size: 13px; }
+    .chips button.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .toolbar input[type=search] { max-width: 260px; margin: 0; margin-left: auto; }
+    .toolbar select { width: auto; margin: 0; }
+    .msg { font-size: 13px; color: var(--muted); min-height: 18px; margin-bottom: 6px; }
+    .msg.error { color: var(--red); }
+    .tablewrap { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; }
+    table.inv { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table.inv th { text-align: left; font-weight: 600; font-size: 13px; color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; background: #f8f9fc; }
+    table.inv td { padding: 10px 12px; border-bottom: 1px solid #edf0f5; white-space: nowrap; vertical-align: middle; }
+    table.inv tr:last-child td { border-bottom: none; }
+    table.inv td.num, table.inv th.num { text-align: right; }
+    table.inv td.client { white-space: normal; min-width: 160px; }
+    table.inv .sub { display: block; font-size: 12px; color: var(--muted); }
+    table.inv .acts { display: flex; gap: 6px; }
+    table.inv .acts button, table.inv .acts a { font-size: 12.5px; padding: 5px 9px; text-decoration: none; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+    table.inv .acts .pay { background: var(--green); border-color: var(--green); color: #fff; }
+    .empty { padding: 28px; text-align: center; color: var(--muted); }
+    .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 600; }
+    .pill.unpaid { background: #fde0e0; color: #a11212; }
+    .pill.partial { background: #fff1cc; color: #8a5a00; }
+    .pill.paid { background: #d9f2e0; color: #146c2e; }
+    .pill.overdue { background: var(--red); color: #fff; }
+    .pill.cancelled { background: #e6e8ec; color: #555a66; }
+
+    /* ---- overview charts ---- */
+    .charts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px; }
+    @media (max-width: 900px) { .charts { grid-template-columns: 1fr; } }
+    .chartcard { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px 12px; }
+    .chartcard.wide { grid-column: 1 / -1; }
+    .chartcard h3 { margin: 0 0 2px; font-size: 15px; }
+    .chartcard .cap { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; }
+    .chartcard .cv { position: relative; height: 270px; }
+    .chartcard.wide .cv { height: 300px; }
+    .chartcard .none { color: var(--muted); font-size: 13px; padding: 40px 0; text-align: center; }
+
+    /* ---- dialogs ---- */
+    dialog { border: none; border-radius: 10px; padding: 0; width: min(440px, 92vw); box-shadow: 0 10px 40px rgba(10,20,50,.3); }
+    dialog::backdrop { background: rgba(15,25,50,.45); }
+    .dlg { padding: 20px; }
+    .dlg h3 { margin: 0 0 4px; font-size: 17px; }
+    .dlg .info { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+    .dlg .btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; flex-wrap: wrap; }
+    .dlg .btns a { text-decoration: none; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 9px 14px; background: #fff; }
+    #payError, #pwError { color: var(--red); font-size: 13px; min-height: 18px; margin-bottom: 6px; }
+    #pwError.ok { color: var(--green); }
+    #rcStatus { font-size: 13px; margin: 6px 0 12px; min-height: 18px; color: var(--muted); }
+    #rcStatus.error { color: var(--red); }
+    #rcStatus.ok { color: var(--green); }
+
+    /* ========== SHARED LETTERHEAD (invoice + receipt) ========== */
+    .doc-stripe { position: absolute; left: 0; right: 0; top: 0; height: 9px;
+      background: linear-gradient(90deg, #ce1126 0, #ce1126 32%, #fff 32%, #fff 34%, #3a5dae 34%, #3a5dae 66%, #fff 66%, #fff 68%, #3a9e49 68%, #3a9e49 100%); }
+    .doc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+    .doc-brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .doc-brand img { display: block; max-width: 140px; max-height: 74px; object-fit: contain; }
+    .doc-brand .name { font-family: Arial, sans-serif; font-size: 25px; font-weight: 700; color: var(--navy); line-height: 1.1; }
+    .doc-brand .loc { font-size: 13px; margin-top: 3px; color: #222; }
+    .doc-brand .ct { font-size: 12px; margin-top: 2px; color: #4a5568; line-height: 1.45; }
+    .doc-id { text-align: right; flex: none; }
+    .doc-id .type { font-size: 30px; font-weight: 700; letter-spacing: 3px; color: var(--navy); line-height: 1; }
+    .doc-meta { margin: 8px 0 0 auto; border-collapse: collapse; font-size: 13px; }
+    .doc-meta td { padding: 2px 0 2px 14px; text-align: right; }
+    .doc-meta td:first-child { color: #667085; }
+    .doc-meta td:last-child { font-weight: 700; }
+    .doc-rule { height: 2px; background: var(--navy); margin-top: 14px; }
+    .dk { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #667085; font-weight: 700; }
+
+    /* ========== INVOICE (A4 @ 96dpi = 794 x 1123) ========== */
+    #invoice {
+      position: relative; width: 794px; min-height: 1120px; padding: 44px 44px 34px; background: #fff; color: #111;
+      font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 14.5px;
+      display: flex; flex-direction: column;
+    }
+    .svc { background: #f1f4fa; color: #3d4a66; font-size: 11px; text-align: center; padding: 6px 12px; }
+    .bill { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-top: 20px; }
+    .bill .who { font-size: 19px; font-weight: 700; margin-top: 4px; }
+    .bill .who.ph { color: #aab1bf; font-weight: 400; }
+    .due-box { text-align: right; }
+    .due-box .amt { font-size: 24px; font-weight: 700; color: var(--navy); margin-top: 2px; }
+    .due-box .dd { font-size: 12.5px; color: #4a5568; margin-top: 2px; }
+    table.items { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 14px; }
+    table.items th { background: var(--navy); color: #fff; font-weight: 600; font-size: 12.5px; letter-spacing: .4px; padding: 9px 10px; text-align: left; }
+    table.items td { padding: 9px 10px; border-bottom: 1px solid #e3e7ef; vertical-align: top; }
+    table.items tbody tr:nth-child(even) td { background: #f7f9fc; }
+    table.items .c { text-align: center; }
+    table.items .num { text-align: right; }
+    table.items td.empty-row { text-align: center; color: #aab1bf; padding: 26px 10px; }
+    .sum { display: flex; justify-content: space-between; align-items: flex-start; gap: 30px; margin-top: 18px; }
+    .sum-left { flex: 1; font-size: 13px; line-height: 1.5; }
+    .sum-left .words { font-style: italic; margin-top: 3px; }
+    .sum-left .notes { margin-top: 3px; }
+    .totals { width: 290px; flex: none; }
+    .totals .row { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #e3e7ef; font-size: 14.5px; }
+    .totals .grand { background: var(--navy); color: #fff; font-weight: 700; font-size: 16.5px; border-bottom: none; }
+    .doc-foot { margin-top: auto; padding-top: 26px; }
+    .terms { border-top: 1px solid #d5dae3; padding-top: 10px; font-size: 12px; color: #3d4a66; line-height: 1.55; }
+    .terms .dk { margin-top: 6px; }
+    .sigs { display: flex; gap: 48px; margin-top: 40px; font-size: 12.5px; }
+    .sigs div { flex: 1; border-top: 1px solid #444; padding-top: 4px; text-align: center; }
+    .thanks { text-align: center; margin-top: 20px; font-size: 13px; font-weight: 700; color: var(--navy); }
+
+    /* ========== RECEIPT (A5 landscape @ 96dpi = 794 x 559) ========== */
+    #receiptHost { position: absolute; left: -10000px; top: 0; }
+    #receipt {
+      position: relative; width: 794px; height: 556px; padding: 26px 40px 20px; background: #fff; color: #111; overflow: hidden;
+      font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 15px;
+      display: flex; flex-direction: column;
+    }
+    #receipt .doc-brand img { max-height: 58px; max-width: 120px; }
+    #receipt .doc-brand .name { font-size: 22px; }
+    #receipt .doc-id .type { font-size: 26px; }
+    #receipt .doc-meta { font-size: 12.5px; margin-top: 5px; }
+    #receipt .doc-rule { margin-top: 10px; }
+    #receipt .rc-rows { margin-top: 8px; }
+    #receipt .rc-row { display: flex; align-items: flex-end; gap: 10px; margin: 8px 0; }
+    #receipt .rc-row .k2 { width: 150px; flex: none; color: #4a5568; font-size: 14px; }
+    #receipt .rc-row .v { flex: 1; border-bottom: 1px dotted #777; padding: 0 4px 1px; font-weight: 600; min-height: 22px; }
+    #receipt .rc-bottom { display: flex; gap: 20px; margin-top: 10px; align-items: stretch; }
+    #receipt .rc-amount { flex: none; width: 250px; background: var(--navy); color: #fff; border-radius: 6px; padding: 10px 14px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+    #receipt .rc-amount .lbl { font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; opacity: .85; }
+    #receipt .rc-amount .big { font-size: 30px; font-weight: 700; }
+    #receipt .rc-sum { flex: 1; border-collapse: collapse; font-size: 14.5px; }
+    #receipt .rc-sum td { border-bottom: 1px solid #e3e7ef; padding: 6px 10px; }
+    #receipt .rc-sum tr:last-child td { border-bottom: none; background: #f1f4fa; }
+    #receipt .rc-sum td:last-child { text-align: right; width: 130px; }
+    #receipt .rc-stamp { margin-top: 10px; font-weight: 700; font-size: 15px; letter-spacing: .5px; }
+    #receipt .rc-stamp span { display: inline-block; border: 2px solid; border-radius: 4px; padding: 2px 12px; }
+    #receipt .rc-stamp .full { color: var(--green); }
+    #receipt .rc-stamp .part { color: #b7791f; }
+    #receipt .rc-thanks { margin-top: auto; text-align: center; font-size: 13px; font-weight: 700; color: var(--navy); }
+    #receipt .rc-sign { margin-top: 30px; display: flex; justify-content: space-between; gap: 40px; font-size: 13px; }
+    #receipt .rc-sign div { flex: 1; border-top: 1px solid #444; padding-top: 4px; text-align: center; }
+
+    @media print {
+      @page { size: A4; margin: 0; }
+      body { background: #fff; }
+      #loginView, .topbar, .panel, .track, dialog, #receiptHost { display: none !important; }
+      .layout { display: block; padding: 0; }
+      .preview { overflow: visible; }
+      .sheet-wrap { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ============ LOGIN ============ -->
+  <div id="loginView" hidden>
+    <form class="login-card" id="loginForm" autocomplete="on">
+      <div class="lg"><img src="logo.png" alt="JangAfrica" onerror="this.remove()"></div>
+      <h2>Invoice Manager</h2>
+      <div class="sub">Sign in to continue</div>
+      <label>Username
+        <input id="loginUser" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+      </label>
+      <label>Password
+        <input id="loginPass" type="password" autocomplete="current-password" required>
+      </label>
+      <label class="check"><input id="loginKeep" type="checkbox"> Keep me signed in on this device</label>
+      <div id="loginError" role="alert"></div>
+      <button type="submit" class="primary" id="loginBtn">Sign in</button>
+    </form>
+  </div>
+
+  <div id="app" hidden>
+  <div class="topbar">
+    <span class="toplogo"><img src="logo.png" alt="" onerror="this.parentElement.remove()"></span>
+    <h1>Invoice Manager</h1><span class="brand">JangAfrica</span>
+    <nav class="tabs">
+      <button type="button" class="active" data-tab="new">New invoice</button>
+      <button type="button" data-tab="track">Invoices</button>
+      <button type="button" data-tab="receipts">Receipts</button>
+      <button type="button" data-tab="overview">Overview</button>
+    </nav>
+    <div class="userbox">
+      <span class="who">Signed in as <b id="userName"></b></span>
+      <button type="button" class="ghost" id="pwBtn">Change password</button>
+      <button type="button" class="ghost" id="logoutBtn">Sign out</button>
+    </div>
+  </div>
+
+  <!-- ============ NEW INVOICE ============ -->
+  <main class="layout" id="newView">
+    <section class="panel">
+      <label>Bill to
+        <input id="client" type="text" placeholder="Client name">
+      </label>
+      <div class="two">
+        <label>Invoice date
+          <input id="date" type="date">
+        </label>
+        <label>Due date (optional)
+          <input id="due" type="date">
+        </label>
+      </div>
+
+      <h2>Items</h2>
+      <div id="items"></div>
+      <button type="button" class="add" id="addItem">Add item</button>
+
+      <label style="margin-top:12px">Notes (optional, printed on the invoice)
+        <textarea id="notes" rows="2" placeholder="e.g. delivery details, special terms"></textarea>
+      </label>
+
+      <div class="total-line"><span>Total</span><span id="totalLabel">D0.00</span></div>
+
+      <button type="button" class="primary" id="generate">Generate invoice</button>
+      <div id="status" role="status"></div>
+
+      <div id="result">
+        <button type="button" id="downloadBtn">Download PDF</button>
+        <button type="button" id="printBtn">Print</button>
+        <a id="driveLink" href="#" target="_blank" rel="noopener" style="display:none">Open in Drive</a>
+        <button type="button" id="newBtn">New invoice</button>
+      </div>
+    </section>
+
+    <section class="preview">
+      <div class="sheet-wrap"><div id="invoice"></div></div>
+    </section>
+  </main>
+
+  <!-- ============ INVOICES (tracking) ============ -->
+  <section class="track" id="trackView" hidden>
+    <div class="cards">
+      <div class="card"><div class="k">Total invoiced</div><div class="v" id="sInvoiced">D0.00</div><div class="s" id="sInvoicedN"></div></div>
+      <div class="card green"><div class="k">Collected</div><div class="v" id="sPaid">D0.00</div><div class="s" id="sPaidN"></div></div>
+      <div class="card"><div class="k">Outstanding</div><div class="v" id="sOut">D0.00</div><div class="s" id="sOutN"></div></div>
+      <div class="card red"><div class="k">Overdue</div><div class="v" id="sOver">D0.00</div><div class="s" id="sOverN"></div></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="chips" id="chips">
+        <button type="button" data-f="all" class="active">All</button>
+        <button type="button" data-f="outstanding">Not fully paid</button>
+        <button type="button" data-f="paid">Paid</button>
+        <button type="button" data-f="overdue">Overdue</button>
+        <button type="button" data-f="cancelled">Cancelled</button>
+      </div>
+      <input id="search" type="search" placeholder="Search invoice no. or client">
+      <button type="button" data-reload>Refresh</button>
+    </div>
+    <div class="msg" id="trackStatus" role="status"></div>
+
+    <div class="tablewrap">
+      <table class="inv">
+        <thead>
+          <tr>
+            <th>Invoice</th><th>Client</th><th>Due</th>
+            <th class="num">Total</th><th class="num">Paid</th><th class="num">Balance</th>
+            <th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="invBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ RECEIPTS ============ -->
+  <section class="track" id="receiptsView" hidden>
+    <div class="cards c3">
+      <div class="card"><div class="k">Receipts issued</div><div class="v" id="rCount">0</div><div class="s" id="rCountS"></div></div>
+      <div class="card green"><div class="k">Total received</div><div class="v" id="rTotal">D0.00</div><div class="s" id="rTotalS"></div></div>
+      <div class="card"><div class="k">Received this month</div><div class="v" id="rMonth">D0.00</div><div class="s" id="rMonthS"></div></div>
+    </div>
+    <div class="toolbar">
+      <input id="rSearch" type="search" placeholder="Search receipt, invoice or client" style="margin-left:0">
+      <button type="button" data-reload>Refresh</button>
+    </div>
+    <div class="msg" id="receiptsStatus" role="status"></div>
+    <div class="tablewrap">
+      <table class="inv">
+        <thead>
+          <tr>
+            <th>Receipt</th><th>Invoice</th><th>Client</th>
+            <th class="num">Amount</th><th class="num">Balance after</th><th>Method</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rcBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ OVERVIEW ============ -->
+  <section class="track" id="overviewView" hidden>
+    <div class="toolbar" style="margin-top:0">
+      <label style="margin:0">Period (by invoice / payment date)
+        <select id="ovPeriod">
+          <option value="all">All time</option>
+          <option value="year">This year</option>
+          <option value="month">This month</option>
+          <option value="d30">Last 30 days</option>
+          <option value="d90">Last 90 days</option>
+        </select>
+      </label>
+      <button type="button" data-reload style="margin-left:auto">Refresh</button>
+    </div>
+    <div class="msg" id="ovStatus" role="status"></div>
+
+    <div class="cards c3" id="ovCards"></div>
+
+    <div class="charts">
+      <div class="chartcard wide">
+        <h3>Invoiced vs money received, by month</h3>
+        <div class="cap">Invoiced uses the invoice date. Received uses the payment date.</div>
+        <div class="cv"><canvas id="chMonthly"></canvas></div>
+      </div>
+      <div class="chartcard">
+        <h3>Invoice status</h3>
+        <div class="cap">Share of invoices in the period.</div>
+        <div class="cv"><canvas id="chStatus"></canvas></div>
+      </div>
+      <div class="chartcard">
+        <h3>Payment methods</h3>
+        <div class="cap">Share of money received in the period.</div>
+        <div class="cv"><canvas id="chMethods"></canvas></div>
+      </div>
+      <div class="chartcard">
+        <h3>Top clients</h3>
+        <div class="cap">Paid and still owed, for the six biggest clients.</div>
+        <div class="cv"><canvas id="chClients"></canvas></div>
+      </div>
+      <div class="chartcard">
+        <h3>Age of unpaid balances</h3>
+        <div class="cap">Days since invoice date, for all invoices not fully paid.</div>
+        <div class="cv"><canvas id="chAgeing"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PAYMENT DIALOG ============ -->
+  <dialog id="payDialog">
+    <div class="dlg">
+      <h3 id="payTitle">Record payment</h3>
+      <div class="info" id="payInfo"></div>
+      <label>Amount received
+        <input id="payAmount" type="number" min="0" step="any">
+      </label>
+      <div class="two">
+        <label>Payment date
+          <input id="payDate" type="date">
+        </label>
+        <label>Method
+          <select id="payMethod">
+            <option>Cash</option>
+            <option>Bank transfer</option>
+            <option>Wave</option>
+            <option>Afrimoney</option>
+            <option>QMoney</option>
+            <option>Other</option>
+          </select>
+        </label>
+      </div>
+      <label>Note (optional)
+        <input id="payNote" type="text" placeholder="e.g. reference number">
+      </label>
+      <div id="payError"></div>
+      <div class="btns">
+        <button type="button" id="payCancel">Cancel</button>
+        <button type="button" class="primary" id="paySave">Save payment and issue receipt</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ============ RECEIPT DIALOG ============ -->
+  <dialog id="rcDialog">
+    <div class="dlg">
+      <h3 id="rcTitle">Receipt</h3>
+      <div class="info" id="rcInfo"></div>
+      <div id="rcStatus" role="status"></div>
+      <div class="btns" id="rcBtns" hidden>
+        <button type="button" id="rcDownload">Download PDF</button>
+        <button type="button" id="rcOpen">Open to print</button>
+        <a id="rcDrive" href="#" target="_blank" rel="noopener" hidden>Open in Drive</a>
+        <button type="button" class="primary" id="rcClose">Done</button>
+      </div>
+      <div class="btns" id="rcBtnsBusy" hidden>
+        <button type="button" id="rcCloseBusy">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ============ CHANGE PASSWORD DIALOG ============ -->
+  <dialog id="pwDialog">
+    <div class="dlg">
+      <h3>Change password</h3>
+      <div class="info">Use at least 8 characters.</div>
+      <label>Current password
+        <input id="pwOld" type="password" autocomplete="current-password">
+      </label>
+      <label>New password
+        <input id="pwNew" type="password" autocomplete="new-password">
+      </label>
+      <label>Confirm new password
+        <input id="pwNew2" type="password" autocomplete="new-password">
+      </label>
+      <div id="pwError" role="status"></div>
+      <div class="btns">
+        <button type="button" id="pwCancel">Cancel</button>
+        <button type="button" class="primary" id="pwSave">Save password</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- off-screen host used to draw receipts into PDF -->
+  <div id="receiptHost"><div id="receipt"></div></div>
+  </div><!-- /#app -->
+
+  <script src="logo.js" onerror="this.remove()"></script>
+  <script src="script.js"></script>
+</body>
+</html>
