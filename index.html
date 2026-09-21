@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>JangAfrica Invoice Manager</title>
   <link rel="icon" href="logo.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Allura&family=Caveat:wght@600&family=Dancing+Script:wght@600&family=Great+Vibes&display=swap">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
@@ -138,6 +139,33 @@
     .dlg .info { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
     .dlg .btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; flex-wrap: wrap; }
     .dlg .btns a { text-decoration: none; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 9px 14px; background: #fff; }
+    /* ---- signature dialog ---- */
+    #sigDialog { width: min(560px, 94vw); }
+    .sg-saved { display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; background: #f7f9fc; }
+    .sg-saved img { height: 44px; max-width: 170px; object-fit: contain; background: #fff; border-radius: 4px; padding: 2px 6px; }
+    .sg-saved .col { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+    button.linkbtn { border: none; background: none; padding: 0; color: var(--muted); font-size: 12.5px; text-decoration: underline; }
+    .sg-tabs { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+    .sg-tabs button { flex: 1; border: none; border-radius: 0; background: #fff; padding: 8px 10px; }
+    .sg-tabs button + button { border-left: 1px solid var(--line); }
+    .sg-tabs button.active { background: var(--navy); color: #fff; font-weight: 600; }
+    .sg-ink { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .sg-ink button { width: 22px; height: 22px; padding: 0; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); }
+    .sg-ink button.on { box-shadow: 0 0 0 2px var(--navy); }
+    #sgCanvas { width: 100%; aspect-ratio: 3 / 1; display: block; border: 1px dashed #aab4c8; border-radius: 8px; touch-action: none; cursor: crosshair;
+      background: linear-gradient(transparent calc(100% - 46px), #d5dae3 calc(100% - 46px), #d5dae3 calc(100% - 45px), transparent calc(100% - 45px)), #fff; }
+    .sg-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 8px 0 12px; font-size: 12.5px; color: var(--muted); }
+    .sg-row button { padding: 5px 10px; font-size: 13px; }
+    .sg-prev { min-height: 90px; border: 1px dashed #aab4c8; border-radius: 8px; margin: 10px 0 12px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px;
+      background: repeating-conic-gradient(#f1f4fa 0% 25%, #fff 0% 50%) 0 / 16px 16px; }
+    .sg-prev img { max-width: 100%; max-height: 110px; }
+    #sgText { margin-bottom: 8px; font-size: 16px; }
+    .sg-fonts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .sg-fonts label { margin: 0; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; min-height: 58px; overflow: hidden; }
+    .sg-fonts label.on { border-color: var(--navy); box-shadow: 0 0 0 1px var(--navy); }
+    .sg-fonts input { width: auto; margin: 0; }
+    .sg-fonts span { font-size: 30px; line-height: 1.1; white-space: nowrap; color: #0b1f4d; }
+    #sgError { color: var(--red); font-size: 13px; min-height: 18px; margin: 4px 0 6px; }
     #payError, #pwError { color: var(--red); font-size: 13px; min-height: 18px; margin-bottom: 6px; }
     #pwError.ok { color: var(--green); }
     #rcStatus { font-size: 13px; margin: 6px 0 12px; min-height: 18px; color: var(--muted); }
@@ -192,8 +220,11 @@
     .doc-foot { margin-top: auto; padding-top: 26px; }
     .terms { border-top: 1px solid #d5dae3; padding-top: 10px; font-size: 12px; color: #3d4a66; line-height: 1.55; }
     .terms .dk { margin-top: 6px; }
-    .sigs { display: flex; gap: 48px; margin-top: 40px; font-size: 12.5px; }
-    .sigs div { flex: 1; border-top: 1px solid #444; padding-top: 4px; text-align: center; }
+    .sigs { display: flex; gap: 48px; margin-top: 52px; font-size: 12.5px; }
+    .sigs div { flex: 1; border-top: 1px solid #444; padding-top: 4px; text-align: center; position: relative; }
+    .sig-img { position: absolute; left: 0; right: 0; bottom: 100%; margin-bottom: 3px; text-align: center; line-height: 0; }
+    .sig-img img { max-height: 48px; max-width: 200px; }
+    .sig-date { display: block; font-size: 11px; color: #667085; margin-top: 1px; }
     .thanks { text-align: center; margin-top: 20px; font-size: 13px; font-weight: 700; color: var(--navy); }
 
     /* ========== RECEIPT (A5 landscape @ 96dpi = 794 x 559) ========== */
@@ -225,8 +256,9 @@
     #receipt .rc-stamp .full { color: var(--green); }
     #receipt .rc-stamp .part { color: #b7791f; }
     #receipt .rc-thanks { margin-top: auto; text-align: center; font-size: 13px; font-weight: 700; color: var(--navy); }
-    #receipt .rc-sign { margin-top: 30px; display: flex; justify-content: space-between; gap: 40px; font-size: 13px; }
-    #receipt .rc-sign div { flex: 1; border-top: 1px solid #444; padding-top: 4px; text-align: center; }
+    #receipt .rc-sign { margin-top: 46px; display: flex; justify-content: space-between; gap: 40px; font-size: 13px; }
+    #receipt .rc-sign div { flex: 1; border-top: 1px solid #444; padding-top: 4px; text-align: center; position: relative; }
+    #receipt .sig-img img { max-height: 42px; }
 
     @media print {
       @page { size: A4; margin: 0; }
@@ -299,10 +331,12 @@
 
       <div class="total-line"><span>Total</span><span id="totalLabel">D0.00</span></div>
 
-      <button type="button" class="primary" id="generate">Generate invoice</button>
+      <button type="button" class="primary" id="generate">Sign &amp; generate invoice</button>
+      <div class="hint" style="font-size:12.5px;color:var(--muted);margin-top:6px">You sign first. The PDF is created and downloaded once, after signing.</div>
       <div id="status" role="status"></div>
 
       <div id="result">
+        <button type="button" class="primary" id="retryBtn" hidden>Try again</button>
         <button type="button" id="downloadBtn">Download PDF</button>
         <button type="button" id="printBtn">Print</button>
         <a id="driveLink" href="#" target="_blank" rel="noopener" style="display:none">Open in Drive</a>
@@ -452,7 +486,7 @@
       <div id="payError"></div>
       <div class="btns">
         <button type="button" id="payCancel">Cancel</button>
-        <button type="button" class="primary" id="paySave">Save payment and issue receipt</button>
+        <button type="button" class="primary" id="paySave">Sign &amp; issue receipt</button>
       </div>
     </div>
   </dialog>
@@ -471,6 +505,60 @@
       </div>
       <div class="btns" id="rcBtnsBusy" hidden>
         <button type="button" id="rcCloseBusy">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ============ SIGNATURE DIALOG ============ -->
+  <dialog id="sigDialog">
+    <div class="dlg">
+      <h3 id="sgTitle">Sign document</h3>
+      <div class="info">Choose how to create your signature. It is added above the signature line.</div>
+
+      <div class="sg-saved" id="sgSaved" hidden>
+        <img id="sgSavedImg" alt="Saved signature">
+        <div class="col">
+          <button type="button" class="primary" id="sgUseSaved">Use saved signature</button>
+          <button type="button" class="linkbtn" id="sgForget">Remove saved signature</button>
+        </div>
+      </div>
+
+      <div class="sg-tabs">
+        <button type="button" class="active" data-sg="draw">Draw</button>
+        <button type="button" data-sg="upload">Upload</button>
+        <button type="button" data-sg="type">From my name</button>
+      </div>
+
+      <div class="sg-ink" id="sgInk">Ink
+        <button type="button" data-ink="#0b1f4d" style="background:#0b1f4d" title="Navy" class="on"></button>
+        <button type="button" data-ink="#111111" style="background:#111111" title="Black"></button>
+        <button type="button" data-ink="#1a3fc0" style="background:#1a3fc0" title="Blue"></button>
+      </div>
+
+      <div data-panel="draw">
+        <canvas id="sgCanvas" width="900" height="300"></canvas>
+        <div class="sg-row">
+          <span>Sign with your mouse, finger or stylus</span>
+          <span><button type="button" id="sgUndo">Undo</button> <button type="button" id="sgClear">Clear</button></span>
+        </div>
+      </div>
+
+      <div data-panel="upload" hidden>
+        <input type="file" id="sgFile" accept="image/*">
+        <label class="check" style="margin:10px 0 0"><input type="checkbox" id="sgRemoveBg" checked> Remove the white background</label>
+        <div class="sg-prev" id="sgUpPrev">Your uploaded signature appears here</div>
+      </div>
+
+      <div data-panel="type" hidden>
+        <input id="sgText" type="text" maxlength="40" placeholder="Type your name" autocomplete="off">
+        <div class="sg-fonts" id="sgFonts"></div>
+      </div>
+
+      <label class="check" style="margin-bottom:6px"><input type="checkbox" id="sgRemember" checked> Remember this signature on this device</label>
+      <div id="sgError" role="alert"></div>
+      <div class="btns">
+        <button type="button" id="sgCancel">Cancel</button>
+        <button type="button" class="primary" id="sgApply">Apply signature</button>
       </div>
     </div>
   </dialog>
