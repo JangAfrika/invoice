@@ -6,7 +6,7 @@ const CONFIG = {
   COMPANY: {
     name: 'JangAfrica',
     location: 'Gunjur, The Gambia',
-    phones: '+(220) 594 4287 / 263 0798',
+    phones: '+(220) 83 594 4287 / 87 263 0798',
     email: 'info.jangafrica@gmail.com',
     more: 'For more information, visit or contact our centre'
   },
