@@ -1,7 +1,7 @@
 /* ============ SETTINGS (edit these) ============ */
 const CONFIG = {
   // Paste your Apps Script Web App URL here (ends with /exec)
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw5KlLtix_mmYJmb6hKDHH08lD5Jxt95s1eAEic3QZCn49vYDAiwzxQ8d_IeOshr_Ir/exec',
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzZ0Q-oTSbU_XKfCC3EbiM0D2hYOixF1erGc9LaCRR_FsSLdoT1rC539Lo8uLnYAhDl/exec',
 
   COMPANY: {
     name: 'JangAfrica',
@@ -24,6 +24,7 @@ const CONFIG = {
 const $ = (id) => document.getElementById(id);
 let items = [];
 let lastBlob = null;
+let lastGen = null;          // the invoice as it was generated: { invoiceNo, data, fileName }
 let lastFileName = '';
 let invoices = [];
 let payments = [];
@@ -205,8 +206,9 @@ function headerHtml(type, metaRows) {
 }
 
 /* ---------- invoice preview ---------- */
-function renderInvoice(invoiceNo) {
-  const d = getData();
+function renderInvoice(invoiceNo, opts) {
+  const d = (opts && opts.data) || getData();
+  const sigUrl = opts && opts.signature;
   const rowsHtml = d.rows.length ? d.rows.map((r, i) => `
     <tr>
       <td class="c" style="width:40px">${pad(i + 1)}</td>
@@ -272,7 +274,7 @@ function renderInvoice(invoiceNo) {
       </div>
       <div class="sigs">
         <div>Issued by${issuer ? ': <b>' + esc(issuer) + '</b>' : ''}</div>
-        <div>Authorised signature &amp; stamp</div>
+        <div>${sigUrl ? `<span class="sig-img"><img src="${esc(sigUrl)}" alt=""></span>` : ''}Authorised signature &amp; stamp${sigUrl ? `<span class="sig-date">Signed ${esc(prettyDate(todayISO()))}</span>` : ''}</div>
       </div>
       <div class="thanks">${esc(CONFIG.THANKS)}</div>
     </div>
@@ -350,6 +352,17 @@ function downloadBlob(blob, name) {
 }
 
 /* ---------- generate invoice ---------- */
+function makeInvoicePdf(fileName) {
+  return html2pdf().set({
+    margin: 0,
+    filename: fileName,
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.sum', '.doc-foot'] }
+  }).from($('invoice')).outputPdf('blob');
+}
+
 async function generate() {
   const d = getData();
 
@@ -362,44 +375,59 @@ async function generate() {
   btn.disabled = true;
   $('result').classList.remove('show');
   $('driveLink').style.display = 'none';
+  lastGen = null; lastBlob = null;
 
   try {
+    // an invoice cannot be created or downloaded until it is signed
+    setStatus('Sign the invoice to continue…');
+    const sig = await getSignature('Sign to create this invoice');
+    if (!sig) return setStatus('The invoice was not created. It has to be signed first.', 'error');
+
     setStatus('Getting the invoice number…');
     const summary = d.rows.map((r) => `${r.item || r.desc} x${r.qty}`).join('; ');
     const reserved = await api({ action: 'reserve', client: d.client, date: d.date, dueDate: d.due, total: d.total, summary });
     const invoiceNo = reserved.invoiceNo;
-
-    renderInvoice(invoiceNo);
-    lastFileName = `Invoice ${invoiceNo} - ${d.client}.pdf`.replace(/[\\/:*?"<>|]/g, '');
-
-    setStatus('Creating the PDF…');
-    lastBlob = await html2pdf().set({
-      margin: 0,
-      filename: lastFileName,
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.sum', '.doc-foot'] }
-    }).from($('invoice')).outputPdf('blob');
-
-    downloadBlob(lastBlob, lastFileName);
-
-    setStatus('Saving a copy to Google Drive…');
-    try {
-      const pdfBase64 = await blobToBase64(lastBlob);
-      const saved = await api({ action: 'savePdf', invoiceNo, fileName: lastFileName, pdfBase64 });
-      $('driveLink').href = saved.url;
-      $('driveLink').style.display = '';
-      setStatus(`${invoiceNo} created and saved to Drive. It is now listed as Unpaid under Invoices.`, 'ok');
-    } catch (err) {
-      setStatus(`${invoiceNo} downloaded, but the Drive copy failed: ${err.message}`, 'error');
-    }
-    $('result').classList.add('show');
+    lastGen = {
+      invoiceNo, data: d, signature: sig,
+      fileName: `Invoice ${invoiceNo} - ${d.client}.pdf`.replace(/[\\/:*?"<>|]/g, '')
+    };
+    await finishInvoice();
   } catch (err) {
     setStatus(err.message, 'error');
+    if (lastGen && !lastBlob) showResult(true);   // number issued but the PDF failed: offer a retry (no new number, no new signature)
   } finally {
     btn.disabled = false;
   }
+}
+
+function showResult(retry) {
+  $('retryBtn').hidden = !retry;
+  $('downloadBtn').hidden = retry;
+  $('printBtn').hidden = retry;
+  $('result').classList.add('show');
+}
+
+// builds the signed PDF, downloads it once and saves a copy to Drive
+async function finishInvoice() {
+  const gen = lastGen;
+  renderInvoice(gen.invoiceNo, { data: gen.data, signature: gen.signature });
+  lastFileName = gen.fileName;
+
+  setStatus('Creating the signed PDF…');
+  lastBlob = await makeInvoicePdf(lastFileName);
+  downloadBlob(lastBlob, lastFileName);
+
+  setStatus('Saving a copy to Google Drive…');
+  try {
+    const pdfBase64 = await blobToBase64(lastBlob);
+    const saved = await api({ action: 'savePdf', invoiceNo: gen.invoiceNo, fileName: lastFileName, pdfBase64, signed: true });
+    $('driveLink').href = saved.url;
+    $('driveLink').style.display = '';
+    setStatus(`${gen.invoiceNo} signed and created. It is saved to Drive and listed as Unpaid under Invoices.`, 'ok');
+  } catch (err) {
+    setStatus(`${gen.invoiceNo} signed and downloaded, but the Drive copy failed: ${err.message}`, 'error');
+  }
+  showResult(false);
 }
 
 /* ================= INVOICES (tracking) ================= */
@@ -518,6 +546,10 @@ $('paySave').addEventListener('click', async () => {
   if (!(amount > 0)) { $('payError').textContent = 'Enter the amount received.'; return; }
   if (!$('payDate').value) { $('payError').textContent = 'Choose the payment date.'; return; }
 
+  // a receipt cannot be issued or downloaded until it is signed
+  const sig = await getSignature('Sign to issue the receipt');
+  if (!sig) { $('payError').textContent = 'The receipt has to be signed before it is issued.'; return; }
+
   const btn = $('paySave');
   btn.disabled = true;
   $('payError').textContent = '';
@@ -531,7 +563,7 @@ $('paySave').addEventListener('click', async () => {
       note: $('payNote').value.trim()
     });
     $('payDialog').close();
-    issueReceipt(out.receipt); // builds the PDF, downloads it and saves a copy to Drive
+    issueReceipt(out.receipt, { signature: sig }); // builds the signed PDF, downloads it once and saves a copy to Drive
   } catch (err) {
     $('payError').textContent = err.message;
   } finally {
@@ -541,7 +573,7 @@ $('paySave').addEventListener('click', async () => {
 
 /* ================= RECEIPTS ================= */
 
-function renderReceipt(p) {
+function renderReceipt(p, sigUrl) {
   const full = p.balanceAfter <= 0.005;
   $('receipt').innerHTML = `
     ${headerHtml('RECEIPT', [
@@ -567,13 +599,13 @@ function renderReceipt(p) {
     <div class="rc-thanks">${esc(CONFIG.THANKS)}</div>
     <div class="rc-sign">
       <div>Received by${p.recordedBy ? ': <b>' + esc(p.recordedBy) + '</b>' : ' (name)'}</div>
-      <div>Signature &amp; stamp</div>
+      <div>${sigUrl ? `<span class="sig-img"><img src="${esc(sigUrl)}" alt=""></span>` : ''}Signature &amp; stamp${sigUrl ? `<span class="sig-date">Signed ${esc(prettyDate(todayISO()))}</span>` : ''}</div>
     </div>
   `;
 }
 
-function buildReceiptPdf(p) {
-  renderReceipt(p);
+function buildReceiptPdf(p, sigUrl) {
+  renderReceipt(p, sigUrl);
   return html2pdf().set({
     margin: 0,
     image: { type: 'jpeg', quality: 0.95 },
@@ -584,19 +616,24 @@ function buildReceiptPdf(p) {
 
 function setRc(msg, type) { const el = $('rcStatus'); el.textContent = msg || ''; el.className = type || ''; }
 
-async function issueReceipt(p) {
+async function issueReceipt(p, opts) {
+  let sigUrl = (opts && opts.signature) || null;
+  if (!sigUrl) {                                   // e.g. a receipt that was recorded but never signed
+    sigUrl = await getSignature('Sign receipt ' + p.receiptNo);
+    if (!sigUrl) return;
+  }
   rc = { p, blob: null, name: '' };
   $('rcTitle').textContent = `Receipt ${p.receiptNo}`;
   $('rcInfo').textContent = `${p.client} · ${money(p.amount)} for invoice ${p.invoiceNo}`;
   $('rcBtns').hidden = true;
   $('rcBtnsBusy').hidden = false;
   $('rcDrive').hidden = true;
-  setRc('Creating the receipt PDF…');
+  setRc('Creating the signed receipt PDF…');
   if (!$('rcDialog').open) $('rcDialog').showModal();
 
   try {
     rc.name = `Receipt ${p.receiptNo} - ${p.client}.pdf`.replace(/[\\/:*?"<>|]/g, '');
-    rc.blob = await buildReceiptPdf(p);
+    rc.blob = await buildReceiptPdf(p, sigUrl);
     downloadBlob(rc.blob, rc.name);
     $('rcBtns').hidden = false;
     $('rcBtnsBusy').hidden = true;
@@ -604,10 +641,10 @@ async function issueReceipt(p) {
     setRc('Saving a copy to Google Drive…');
     try {
       const pdfBase64 = await blobToBase64(rc.blob);
-      const saved = await api({ action: 'saveReceiptPdf', receiptNo: p.receiptNo, fileName: rc.name, pdfBase64 });
+      const saved = await api({ action: 'saveReceiptPdf', receiptNo: p.receiptNo, fileName: rc.name, pdfBase64, signed: true });
       $('rcDrive').href = saved.url;
       $('rcDrive').hidden = false;
-      setRc('Receipt created and saved to Drive.', 'ok');
+      setRc('Signed receipt saved to Drive.', 'ok');
     } catch (err) {
       setRc('Receipt downloaded, but the Drive copy failed: ' + err.message, 'error');
     }
@@ -628,10 +665,10 @@ $('rcOpen').addEventListener('click', () => {
 function renderReceipts() {
   const monthKey = todayISO().slice(0, 7);
   const thisMonth = payments.filter((p) => p.date && p.date.slice(0, 7) === monthKey);
-  const missing = payments.filter((p) => !p.link).length;
+  const unsigned = payments.filter((p) => !p.signed).length;
 
   $('rCount').textContent = payments.length;
-  $('rCountS').textContent = missing ? missing + ' without a saved PDF' : 'all have a saved PDF';
+  $('rCountS').textContent = unsigned ? unsigned + ' not signed yet' : 'all signed';
   $('rTotal').textContent = money(sum(payments, 'amount'));
   $('rTotalS').textContent = 'across ' + new Set(payments.map((p) => p.invoiceNo)).size + ' invoices';
   $('rMonth').textContent = money(sum(thisMonth, 'amount'));
@@ -649,16 +686,15 @@ function renderReceipts() {
 
   $('rcBody').innerHTML = list.map((p) => `
     <tr>
-      <td><b>${esc(p.receiptNo)}</b><span class="sub">${esc(shortDate(p.date))}</span></td>
+      <td><b>${esc(p.receiptNo)}</b><span class="sub">${esc(shortDate(p.date))}${p.signed ? ' · signed' : ''}</span></td>
       <td>${esc(p.invoiceNo)}</td>
       <td class="client">${esc(p.client)}${p.note ? `<span class="sub">${esc(p.note)}</span>` : ''}</td>
       <td class="num">${money(p.amount)}</td>
       <td class="num">${money(p.balanceAfter)}${p.balanceAfter <= 0.005 ? '<span class="sub">paid in full</span>' : ''}</td>
       <td>${esc(p.method || '—')}</td>
       <td><div class="acts">
-        ${p.link
-          ? `<a href="${esc(p.link)}" target="_blank" rel="noopener">PDF</a>`
-          : `<button type="button" class="pay" data-act="make" data-no="${esc(p.receiptNo)}">Create PDF</button>`}
+        ${p.link ? `<a href="${esc(p.link)}" target="_blank" rel="noopener">PDF</a>` : ''}
+        ${p.signed ? '' : `<button type="button" class="pay" data-act="make" data-no="${esc(p.receiptNo)}">Sign &amp; create PDF</button>`}
       </div></td>
     </tr>`).join('');
 }
@@ -666,7 +702,7 @@ $('rSearch').addEventListener('input', renderReceipts);
 $('rcBody').addEventListener('click', (e) => {
   if (e.target.dataset.act !== 'make') return;
   const p = payments.find((x) => x.receiptNo === e.target.dataset.no);
-  if (p) issueReceipt(p);
+  if (p) issueReceipt(p);   // asks for the signature first
 });
 
 /* ================= OVERVIEW ================= */
@@ -849,7 +885,17 @@ $('ovPeriod').addEventListener('change', renderOverview);
 /* ---------- buttons (new invoice) ---------- */
 $('generate').addEventListener('click', generate);
 $('downloadBtn').addEventListener('click', () => lastBlob && downloadBlob(lastBlob, lastFileName));
-$('printBtn').addEventListener('click', () => window.print());
+$('printBtn').addEventListener('click', () => {
+  if (!lastGen || !lastBlob) return;   // only a signed invoice can be printed
+  renderInvoice(lastGen.invoiceNo, { data: lastGen.data, signature: lastGen.signature });
+  window.print();
+});
+$('retryBtn').addEventListener('click', async () => {
+  if (!lastGen) return;
+  $('retryBtn').disabled = true;
+  try { await finishInvoice(); } catch (err) { setStatus(err.message, 'error'); showResult(true); }
+  $('retryBtn').disabled = false;
+});
 $('newBtn').addEventListener('click', () => {
   $('client').value = '';
   $('date').value = todayISO();
@@ -857,7 +903,9 @@ $('newBtn').addEventListener('click', () => {
   $('notes').value = '';
   items = [newItem()];
   lastBlob = null;
+  lastGen = null;
   $('result').classList.remove('show');
+  $('retryBtn').hidden = true;
   setStatus('');
   drawItems();
   refresh();
@@ -866,6 +914,218 @@ $('client').addEventListener('input', refresh);
 $('date').addEventListener('input', refresh);
 $('due').addEventListener('input', refresh);
 $('notes').addEventListener('input', refresh);
+
+/* ================= SIGNATURES ================= */
+/* A signature is a transparent PNG (drawn, uploaded or generated from a name) placed above the signature line. */
+
+const SIG_FONTS = ['Dancing Script', 'Great Vibes', 'Allura', 'Caveat'];
+const sg = { tab: 'draw', ink: '#0b1f4d', strokes: [], cur: null, upload: null, font: SIG_FONTS[0], resolve: null };
+const sgCanvas = $('sgCanvas');
+const sgCtx = sgCanvas.getContext('2d');
+
+const sgKey = () => 'inv_sig:' + (session && session.user ? session.user.username : '');
+function sgLoadSaved() { try { return localStorage.getItem(sgKey()) || ''; } catch (e) { return ''; } }
+function sgStore(url) { try { localStorage.setItem(sgKey(), url); } catch (e) { /* storage blocked */ } }
+function sgForget() { try { localStorage.removeItem(sgKey()); } catch (e) { /* ignore */ } }
+
+/* ---- drawing pad ---- */
+function sgDrawStroke(ctx, st) {
+  const pts = st.pts;
+  if (!pts.length) return;
+  ctx.strokeStyle = st.ink; ctx.fillStyle = st.ink;
+  ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath();
+  if (pts.length < 3) {
+    ctx.arc(pts[0].x, pts[0].y, 2.5, 0, Math.PI * 2); ctx.fill();
+    if (pts.length === 2) { ctx.moveTo(pts[0].x, pts[0].y); ctx.lineTo(pts[1].x, pts[1].y); ctx.stroke(); }
+    return;
+  }
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length - 1; i++) {
+    ctx.quadraticCurveTo(pts[i].x, pts[i].y, (pts[i].x + pts[i + 1].x) / 2, (pts[i].y + pts[i + 1].y) / 2);
+  }
+  ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+  ctx.stroke();
+}
+function sgRedraw() {
+  sgCtx.clearRect(0, 0, sgCanvas.width, sgCanvas.height);
+  sg.strokes.forEach((st) => sgDrawStroke(sgCtx, st));
+}
+function sgPoint(e) {
+  const r = sgCanvas.getBoundingClientRect();
+  return { x: (e.clientX - r.left) * (sgCanvas.width / r.width), y: (e.clientY - r.top) * (sgCanvas.height / r.height) };
+}
+sgCanvas.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  $('sgError').textContent = '';
+  sgCanvas.setPointerCapture(e.pointerId);
+  sg.cur = { ink: sg.ink, pts: [sgPoint(e)] };
+  sg.strokes.push(sg.cur);
+  sgRedraw();
+});
+sgCanvas.addEventListener('pointermove', (e) => {
+  if (!sg.cur) return;
+  sg.cur.pts.push(sgPoint(e));
+  sgRedraw();
+});
+['pointerup', 'pointercancel'].forEach((ev) => sgCanvas.addEventListener(ev, () => { sg.cur = null; }));
+$('sgUndo').addEventListener('click', () => { sg.strokes.pop(); sgRedraw(); });
+$('sgClear').addEventListener('click', () => { sg.strokes = []; sgRedraw(); });
+
+/* ---- turning any canvas into a tight, transparent PNG ---- */
+function sgTrim(src) {
+  const w = src.width, h = src.height;
+  const px = src.getContext('2d').getImageData(0, 0, w, h).data;
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (px[(y * w + x) * 4 + 3] > 12) {
+        if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+      }
+    }
+  }
+  if (x1 < 0) return null;                                  // nothing visible
+  const m = 8;
+  const cw = x1 - x0 + 1 + m * 2, ch = y1 - y0 + 1 + m * 2;
+  const k = Math.min(1, 800 / cw, 300 / ch);                // keep the file small
+  const out = document.createElement('canvas');
+  out.width = Math.max(1, Math.round(cw * k)); out.height = Math.max(1, Math.round(ch * k));
+  out.getContext('2d').drawImage(src, x0 - m, y0 - m, cw, ch, 0, 0, out.width, out.height);
+  return out.toDataURL('image/png');
+}
+
+/* ---- upload ---- */
+function sgFromImage(img, removeBg) {
+  const k = Math.min(1, 1000 / img.width, 400 / img.height);
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(img.width * k)); c.height = Math.max(1, Math.round(img.height * k));
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0, c.width, c.height);
+  if (removeBg) {
+    const id = ctx.getImageData(0, 0, c.width, c.height), d = id.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+      const a = lum > 235 ? 0 : lum > 190 ? Math.round(((235 - lum) / 45) * 255) : 255;
+      d[i + 3] = Math.min(d[i + 3], a);
+    }
+    ctx.putImageData(id, 0, 0);
+  }
+  return c;
+}
+function sgUploadPreview() {
+  if (!sg.upload) { $('sgUpPrev').textContent = 'Your uploaded signature appears here'; return; }
+  const url = sgTrim(sgFromImage(sg.upload, $('sgRemoveBg').checked));
+  $('sgUpPrev').innerHTML = url ? `<img src="${url}" alt="">` : 'No signature found in that image.';
+}
+$('sgFile').addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (!/^image\//.test(f.type)) { $('sgError').textContent = 'Please choose an image file (PNG or JPG).'; return; }
+  const r = new FileReader();
+  r.onload = () => {
+    const img = new Image();
+    img.onload = () => { sg.upload = img; $('sgError').textContent = ''; sgUploadPreview(); };
+    img.onerror = () => { $('sgError').textContent = 'That image could not be read.'; };
+    img.src = String(r.result);
+  };
+  r.readAsDataURL(f);
+});
+$('sgRemoveBg').addEventListener('change', sgUploadPreview);
+
+/* ---- from name ---- */
+async function sgFromText(text, font, ink) {
+  const size = 120;
+  try { await document.fonts.load(`${size}px "${font}"`, text); } catch (e) { /* fall back to cursive */ }
+  const c = document.createElement('canvas');
+  const fontCss = `${size}px "${font}", cursive`;
+  c.getContext('2d').font = fontCss;
+  const w = Math.ceil(c.getContext('2d').measureText(text).width) + 100;
+  c.width = w; c.height = size * 2;
+  const ctx = c.getContext('2d');
+  ctx.font = fontCss; ctx.fillStyle = ink; ctx.textBaseline = 'middle';
+  ctx.fillText(text, 50, size);
+  return c;
+}
+function sgDrawFontChoices() {
+  const text = $('sgText').value.trim() || 'Your name';
+  $('sgFonts').innerHTML = SIG_FONTS.map((f) => `
+    <label class="${f === sg.font ? 'on' : ''}">
+      <input type="radio" name="sgFont" value="${esc(f)}" ${f === sg.font ? 'checked' : ''}>
+      <span style="font-family:'${esc(f)}',cursive;color:${sg.ink}">${esc(text)}</span>
+    </label>`).join('');
+}
+$('sgText').addEventListener('input', sgDrawFontChoices);
+$('sgFonts').addEventListener('change', (e) => { if (e.target.name === 'sgFont') { sg.font = e.target.value; sgDrawFontChoices(); } });
+
+/* ---- tabs + ink ---- */
+function sgShowTab(tab) {
+  sg.tab = tab;
+  document.querySelectorAll('.sg-tabs button').forEach((b) => b.classList.toggle('active', b.dataset.sg === tab));
+  document.querySelectorAll('#sigDialog [data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== tab; });
+  $('sgInk').hidden = tab === 'upload';
+  $('sgError').textContent = '';
+  if (tab === 'type') sgDrawFontChoices();
+}
+document.querySelectorAll('.sg-tabs button').forEach((b) => b.addEventListener('click', () => sgShowTab(b.dataset.sg)));
+$('sgInk').addEventListener('click', (e) => {
+  const c = e.target.dataset.ink;
+  if (!c) return;
+  sg.ink = c;
+  $('sgInk').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.ink === c));
+  sg.strokes.forEach((st) => { st.ink = c; });               // recolour what is already drawn
+  sgRedraw();
+  sgDrawFontChoices();
+});
+
+/* ---- open / apply ---- */
+function getSignature(title) {
+  return new Promise((resolve) => {
+    sg.resolve = resolve;
+    $('sgTitle').textContent = title || 'Sign document';
+    $('sgError').textContent = '';
+    sg.strokes = []; sg.cur = null; sg.upload = null;
+    sgRedraw();
+    $('sgFile').value = '';
+    sgUploadPreview();
+    $('sgText').value = session && session.user ? session.user.name : '';
+    const saved = sgLoadSaved();
+    $('sgSaved').hidden = !saved;
+    if (saved) $('sgSavedImg').src = saved;
+    sgShowTab('draw');
+    $('sigDialog').showModal();
+  });
+}
+function sgFinish(url) {
+  const done = sg.resolve;
+  sg.resolve = null;
+  if ($('sigDialog').open) $('sigDialog').close();
+  if (done) done(url);
+}
+$('sigDialog').addEventListener('close', () => sgFinish(null));   // Esc or Cancel
+$('sgCancel').addEventListener('click', () => sgFinish(null));
+$('sgUseSaved').addEventListener('click', () => sgFinish(sgLoadSaved() || null));
+$('sgForget').addEventListener('click', () => { sgForget(); $('sgSaved').hidden = true; });
+
+$('sgApply').addEventListener('click', async () => {
+  const err = (m) => { $('sgError').textContent = m; };
+  let url = null;
+  try {
+    if (sg.tab === 'draw') {
+      if (!sg.strokes.length) return err('Draw your signature in the box first.');
+      url = sgTrim(sgCanvas);
+    } else if (sg.tab === 'upload') {
+      if (!sg.upload) return err('Choose an image of your signature first.');
+      url = sgTrim(sgFromImage(sg.upload, $('sgRemoveBg').checked));
+    } else {
+      const text = $('sgText').value.trim();
+      if (!text) return err('Type your name first.');
+      url = sgTrim(await sgFromText(text, sg.font, sg.ink));
+    }
+  } catch (e) { return err('Could not create the signature: ' + e.message); }
+  if (!url) return err('No signature was found. Please try again.');
+  if ($('sgRemember').checked) sgStore(url);
+  sgFinish(url);
+});
 
 /* ================= LOGIN / SESSION ================= */
 
@@ -906,7 +1166,7 @@ function clearData() {
   invoices = []; payments = [];
   ['invBody', 'rcBody', 'ovCards'].forEach((id) => { $(id).innerHTML = ''; });
   Object.keys(charts).forEach((k) => { charts[k].destroy(); delete charts[k]; });
-  lastBlob = null; rc = { p: null, blob: null, name: '' };
+  lastBlob = null; lastGen = null; rc = { p: null, blob: null, name: '' };
 }
 
 function signOut(msg) {
@@ -916,6 +1176,7 @@ function signOut(msg) {
   if ($('payDialog').open) $('payDialog').close();
   if ($('rcDialog').open) $('rcDialog').close();
   if ($('pwDialog').open) $('pwDialog').close();
+  if ($('sigDialog').open) $('sigDialog').close();
   showLogin(msg);
 }
 
