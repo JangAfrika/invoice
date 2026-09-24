@@ -1,7 +1,7 @@
 /* ============ SETTINGS (edit these) ============ */
 const CONFIG = {
   // Paste your Apps Script Web App URL here (ends with /exec)
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzZ0Q-oTSbU_XKfCC3EbiM0D2hYOixF1erGc9LaCRR_FsSLdoT1rC539Lo8uLnYAhDl/exec',
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyMALdWtwQ6GsXSzYdHHAA17IIbMPquS5YMzA0fp3aEkEwygKUI5D6yc_Qe13COG-ph/exec',
 
   COMPANY: {
     name: 'JangAfrica',
