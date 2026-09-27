@@ -1,12 +1,12 @@
 /* ============ SETTINGS (edit these) ============ */
 const CONFIG = {
   // Paste your Apps Script Web App URL here (ends with /exec)
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyMALdWtwQ6GsXSzYdHHAA17IIbMPquS5YMzA0fp3aEkEwygKUI5D6yc_Qe13COG-ph/exec',
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw-QTI2ehQSg5EiA_RVRl47N4l-QTLzVKo0cynqowMgOrynWDNe1KOCLu-tH5KHbYw5/exec',
 
   COMPANY: {
     name: 'JangAfrica',
     location: 'Gunjur, The Gambia',
-    phones: '+(220) 83 594 4287 / 87 263 0798',
+    phones: '+(220) 594 4287 / 263 0798',
     email: 'info.jangafrica@gmail.com',
     more: 'For more information, visit or contact our centre'
   },
@@ -30,6 +30,8 @@ let invoices = [];
 let payments = [];
 let filter = 'all';
 let payingNo = null;
+let editingInvoiceNo = null;   // set while editing an existing (unpaid, unsigned-since-edit) invoice
+let editingReceiptNo = null;   // set while editing an existing receipt/payment
 let currentTab = 'new';
 let rc = { p: null, blob: null, name: '' };
 const charts = {};
@@ -48,6 +50,7 @@ const pct = (a, b) => (b > 0 ? Math.round((a / b) * 1000) / 10 + '%' : '—');
 const sum = (arr, k) => arr.reduce((s, i) => s + (Number(i[k]) || 0), 0);
 
 function parseISO(iso) { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); }
+function withinEditWindow(iso) { return !!iso && (Date.now() - new Date(iso).getTime()) <= 48 * 3600 * 1000; }
 function prettyDate(iso) {
   return iso ? parseISO(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 }
@@ -274,7 +277,7 @@ function renderInvoice(invoiceNo, opts) {
       </div>
       <div class="sigs">
         <div>Issued by${issuer ? ': <b>' + esc(issuer) + '</b>' : ''}</div>
-        <div>${sigUrl ? `<span class="sig-img"><img src="${esc(sigUrl)}" alt=""></span>` : ''}Authorised signature &amp; stamp${sigUrl ? `<span class="sig-date">Signed ${esc(prettyDate(todayISO()))}</span>` : ''}</div>
+        <div>${sigUrl ? `<span class="sig-img"><img src="${esc(sigUrl)}" alt=""></span>` : ''}Authorised signature${sigUrl ? `<span class="sig-date">Signed ${esc(prettyDate(todayISO()))}</span>` : ''}</div>
       </div>
       <div class="thanks">${esc(CONFIG.THANKS)}</div>
     </div>
@@ -365,6 +368,7 @@ function makeInvoicePdf(fileName) {
 
 async function generate() {
   const d = getData();
+  const editing = editingInvoiceNo;
 
   if (!d.client) return setStatus('Enter the client name.', 'error');
   if (!d.date) return setStatus('Choose the invoice date.', 'error');
@@ -375,26 +379,36 @@ async function generate() {
   btn.disabled = true;
   $('result').classList.remove('show');
   $('driveLink').style.display = 'none';
-  lastGen = null; lastBlob = null;
+  lastBlob = null;
+  if (!editing) lastGen = null;
 
   try {
-    // an invoice cannot be created or downloaded until it is signed
-    setStatus('Sign the invoice to continue…');
-    const sig = await getSignature('Sign to create this invoice');
-    if (!sig) return setStatus('The invoice was not created. It has to be signed first.', 'error');
+    // an invoice cannot be created, edited or downloaded until it is signed
+    setStatus(editing ? 'Sign to save your changes…' : 'Sign the invoice to continue…');
+    const sig = await getSignature(editing ? `Sign changes to ${editing}` : 'Sign to create this invoice');
+    if (!sig) return setStatus(editing ? 'No changes were saved. It has to be signed to confirm them.' : 'The invoice was not created. It has to be signed first.', 'error');
 
-    setStatus('Getting the invoice number…');
     const summary = d.rows.map((r) => `${r.item || r.desc} x${r.qty}`).join('; ');
-    const reserved = await api({ action: 'reserve', client: d.client, date: d.date, dueDate: d.due, total: d.total, summary });
-    const invoiceNo = reserved.invoiceNo;
+    const itemsJson = JSON.stringify(d.rows.map((r) => ({ item: r.item, desc: r.desc, qty: r.qty, price: r.price })));
+    let invoiceNo;
+    if (editing) {
+      setStatus('Saving your changes…');
+      await api({ action: 'updateInvoice', invoiceNo: editing, client: d.client, date: d.date, dueDate: d.due, total: d.total, notes: d.notes, summary, itemsJson });
+      invoiceNo = editing;
+    } else {
+      setStatus('Getting the invoice number…');
+      const reserved = await api({ action: 'reserve', client: d.client, date: d.date, dueDate: d.due, total: d.total, notes: d.notes, summary, itemsJson });
+      invoiceNo = reserved.invoiceNo;
+    }
+
     lastGen = {
-      invoiceNo, data: d, signature: sig,
-      fileName: `Invoice ${invoiceNo} - ${d.client}.pdf`.replace(/[\\/:*?"<>|]/g, '')
+      invoiceNo, data: d, signature: sig, wasEdit: !!editing,
+      fileName: `Invoice ${invoiceNo} - ${d.client}${editing ? ' (revised)' : ''}.pdf`.replace(/[\\/:*?"<>|]/g, '')
     };
     await finishInvoice();
   } catch (err) {
     setStatus(err.message, 'error');
-    if (lastGen && !lastBlob) showResult(true);   // number issued but the PDF failed: offer a retry (no new number, no new signature)
+    if (lastGen && !lastBlob) showResult(true);   // number issued (or edit saved) but the PDF failed: offer a retry, no new signature needed
   } finally {
     btn.disabled = false;
   }
@@ -423,11 +437,45 @@ async function finishInvoice() {
     const saved = await api({ action: 'savePdf', invoiceNo: gen.invoiceNo, fileName: lastFileName, pdfBase64, signed: true });
     $('driveLink').href = saved.url;
     $('driveLink').style.display = '';
-    setStatus(`${gen.invoiceNo} signed and created. It is saved to Drive and listed as Unpaid under Invoices.`, 'ok');
+    setStatus(gen.wasEdit
+      ? `${gen.invoiceNo} updated and re-signed. The revised PDF is saved to Drive.`
+      : `${gen.invoiceNo} signed and created. It is saved to Drive and listed as Unpaid under Invoices.`, 'ok');
   } catch (err) {
     setStatus(`${gen.invoiceNo} signed and downloaded, but the Drive copy failed: ${err.message}`, 'error');
   }
+  if (gen.wasEdit) exitEditMode();
   showResult(false);
+}
+
+/* ---- edit an existing (unpaid, still within 48 hours) invoice ---- */
+function exitEditMode() {
+  editingInvoiceNo = null;
+  $('editBanner').hidden = true;
+  $('generate').textContent = 'Sign & generate invoice';
+}
+function enterEditMode(inv) {
+  let rows = null;
+  try { rows = inv.itemsJson ? JSON.parse(inv.itemsJson) : null; } catch (e) { rows = null; }
+  if (!Array.isArray(rows) || !rows.length) {
+    setMsg($('trackStatus'), 'This invoice has no saved item list to edit (only invoices created after this update can be edited).', 'error');
+    return;
+  }
+  editingInvoiceNo = inv.no;
+  items = rows.map((r) => ({ item: r.item || '', desc: r.desc || '', qty: r.qty || 0, price: r.price || 0 }));
+  drawItems();
+  $('client').value = inv.client;
+  $('date').value = inv.date;
+  $('due').value = inv.due || '';
+  $('notes').value = inv.notes || '';
+  $('editBanner').hidden = false;
+  $('editBannerNo').textContent = inv.no;
+  $('generate').textContent = 'Sign & save changes';
+  lastBlob = null; lastGen = null;
+  $('result').classList.remove('show');
+  $('retryBtn').hidden = true;
+  setStatus('');
+  showTab('new');
+  refresh();
 }
 
 /* ================= INVOICES (tracking) ================= */
@@ -476,6 +524,7 @@ function renderTrack() {
   $('invBody').innerHTML = list.map((i) => {
     const s = displayStatus(i);
     const canPay = i.status === 'Unpaid' || i.status === 'Partial';
+    const canEdit = i.status === 'Unpaid' && (i.paid || 0) <= 0.005 && !!i.itemsJson && withinEditWindow(i.createdAt);
     return `
       <tr>
         <td><b>${esc(i.no)}</b><span class="sub">${esc(shortDate(i.date))}</span></td>
@@ -487,6 +536,7 @@ function renderTrack() {
         <td><span class="pill ${s.toLowerCase()}">${s}</span></td>
         <td><div class="acts">
           ${canPay ? `<button type="button" class="pay" data-act="pay" data-no="${esc(i.no)}">Record payment</button>` : ''}
+          ${canEdit ? `<button type="button" class="edit" data-act="edit" data-no="${esc(i.no)}">Edit</button>` : ''}
           ${i.link ? `<a href="${esc(i.link)}" target="_blank" rel="noopener">PDF</a>` : ''}
           ${i.status === 'Cancelled'
             ? `<button type="button" data-act="reopen" data-no="${esc(i.no)}">Reopen</button>`
@@ -511,6 +561,7 @@ $('invBody').addEventListener('click', async (e) => {
   if (!inv) return;
 
   if (act === 'pay') return openPayDialog(inv);
+  if (act === 'edit') return enterEditMode(inv);
 
   if (act === 'cancel' || act === 'reopen') {
     const msg = act === 'cancel'
@@ -529,6 +580,7 @@ $('invBody').addEventListener('click', async (e) => {
 
 /* ---- payment dialog ---- */
 function openPayDialog(inv) {
+  editingReceiptNo = null;
   payingNo = inv.no;
   $('payTitle').textContent = `Record payment for ${inv.no}`;
   $('payInfo').textContent = `${inv.client} · Total ${money(inv.total)} · Paid ${money(inv.paid)} · Balance ${money(inv.balance)}`;
@@ -537,6 +589,23 @@ function openPayDialog(inv) {
   $('payMethod').selectedIndex = 0;
   $('payNote').value = '';
   $('payError').textContent = '';
+  $('paySave').textContent = 'Sign & issue receipt';
+  $('payDialog').showModal();
+}
+function openEditPaymentDialog(p) {
+  if (!withinEditWindow(p.recordedAt)) return;
+  editingReceiptNo = p.receiptNo;
+  payingNo = p.invoiceNo;
+  $('payTitle').textContent = `Edit receipt ${p.receiptNo}`;
+  $('payInfo').textContent = `${p.client} · Invoice ${p.invoiceNo} · Invoice total ${money(p.invoiceTotal)}`;
+  $('payAmount').value = p.amount;
+  $('payDate').value = p.date;
+  const opts = Array.from($('payMethod').options);
+  const idx = opts.findIndex((o) => o.value === p.method);
+  $('payMethod').selectedIndex = idx >= 0 ? idx : 0;
+  $('payNote').value = p.note || '';
+  $('payError').textContent = '';
+  $('paySave').textContent = 'Sign & save changes';
   $('payDialog').showModal();
 }
 $('payCancel').addEventListener('click', () => $('payDialog').close());
@@ -546,22 +615,19 @@ $('paySave').addEventListener('click', async () => {
   if (!(amount > 0)) { $('payError').textContent = 'Enter the amount received.'; return; }
   if (!$('payDate').value) { $('payError').textContent = 'Choose the payment date.'; return; }
 
-  // a receipt cannot be issued or downloaded until it is signed
-  const sig = await getSignature('Sign to issue the receipt');
-  if (!sig) { $('payError').textContent = 'The receipt has to be signed before it is issued.'; return; }
+  const editing = editingReceiptNo;
+
+  // a receipt cannot be issued, edited or downloaded until it is signed
+  const sig = await getSignature(editing ? `Sign changes to receipt ${editing}` : 'Sign to issue the receipt');
+  if (!sig) { $('payError').textContent = editing ? 'No changes were saved. It has to be signed to confirm them.' : 'The receipt has to be signed before it is issued.'; return; }
 
   const btn = $('paySave');
   btn.disabled = true;
   $('payError').textContent = '';
   try {
-    const out = await api({
-      action: 'recordPayment',
-      invoiceNo: payingNo,
-      amount,
-      date: $('payDate').value,
-      method: $('payMethod').value,
-      note: $('payNote').value.trim()
-    });
+    const out = editing
+      ? await api({ action: 'updatePayment', receiptNo: editing, amount, date: $('payDate').value, method: $('payMethod').value, note: $('payNote').value.trim() })
+      : await api({ action: 'recordPayment', invoiceNo: payingNo, amount, date: $('payDate').value, method: $('payMethod').value, note: $('payNote').value.trim() });
     $('payDialog').close();
     issueReceipt(out.receipt, { signature: sig }); // builds the signed PDF, downloads it once and saves a copy to Drive
   } catch (err) {
@@ -599,7 +665,7 @@ function renderReceipt(p, sigUrl) {
     <div class="rc-thanks">${esc(CONFIG.THANKS)}</div>
     <div class="rc-sign">
       <div>Received by${p.recordedBy ? ': <b>' + esc(p.recordedBy) + '</b>' : ' (name)'}</div>
-      <div>${sigUrl ? `<span class="sig-img"><img src="${esc(sigUrl)}" alt=""></span>` : ''}Signature &amp; stamp${sigUrl ? `<span class="sig-date">Signed ${esc(prettyDate(todayISO()))}</span>` : ''}</div>
+      <div>${sigUrl ? `<span class="sig-img"><img src="${esc(sigUrl)}" alt=""></span>` : ''}Signature${sigUrl ? `<span class="sig-date">Signed ${esc(prettyDate(todayISO()))}</span>` : ''}</div>
     </div>
   `;
 }
@@ -662,6 +728,16 @@ $('rcOpen').addEventListener('click', () => {
   window.open(URL.createObjectURL(rc.blob), '_blank');
 });
 
+function latestReceiptPerInvoice() {
+  const latest = {};
+  payments.forEach((p) => {
+    const cur = latest[p.invoiceNo];
+    const rank = (x) => (x.recordedAt ? new Date(x.recordedAt).getTime() : numOf(x.receiptNo));
+    if (!cur || rank(p) > rank(cur)) latest[p.invoiceNo] = p;
+  });
+  return new Set(Object.values(latest).map((p) => p.receiptNo));
+}
+
 function renderReceipts() {
   const monthKey = todayISO().slice(0, 7);
   const thisMonth = payments.filter((p) => p.date && p.date.slice(0, 7) === monthKey);
@@ -674,6 +750,7 @@ function renderReceipts() {
   $('rMonth').textContent = money(sum(thisMonth, 'amount'));
   $('rMonthS').textContent = thisMonth.length + ' payment' + (thisMonth.length === 1 ? '' : 's');
 
+  const latestSet = latestReceiptPerInvoice();
   const q = $('rSearch').value.trim().toLowerCase();
   const list = payments
     .filter((p) => !q || p.receiptNo.toLowerCase().includes(q) || p.invoiceNo.toLowerCase().includes(q) || p.client.toLowerCase().includes(q))
@@ -684,7 +761,9 @@ function renderReceipts() {
     return;
   }
 
-  $('rcBody').innerHTML = list.map((p) => `
+  $('rcBody').innerHTML = list.map((p) => {
+    const canEdit = latestSet.has(p.receiptNo) && withinEditWindow(p.recordedAt);
+    return `
     <tr>
       <td><b>${esc(p.receiptNo)}</b><span class="sub">${esc(shortDate(p.date))}${p.signed ? ' · signed' : ''}</span></td>
       <td>${esc(p.invoiceNo)}</td>
@@ -695,14 +774,19 @@ function renderReceipts() {
       <td><div class="acts">
         ${p.link ? `<a href="${esc(p.link)}" target="_blank" rel="noopener">PDF</a>` : ''}
         ${p.signed ? '' : `<button type="button" class="pay" data-act="make" data-no="${esc(p.receiptNo)}">Sign &amp; create PDF</button>`}
+        ${canEdit ? `<button type="button" class="edit" data-act="edit" data-no="${esc(p.receiptNo)}">Edit</button>` : ''}
       </div></td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 $('rSearch').addEventListener('input', renderReceipts);
 $('rcBody').addEventListener('click', (e) => {
-  if (e.target.dataset.act !== 'make') return;
+  const act = e.target.dataset.act;
+  if (!act) return;
   const p = payments.find((x) => x.receiptNo === e.target.dataset.no);
-  if (p) issueReceipt(p);   // asks for the signature first
+  if (!p) return;
+  if (act === 'make') return issueReceipt(p);   // asks for the signature first
+  if (act === 'edit') return openEditPaymentDialog(p);
 });
 
 /* ================= OVERVIEW ================= */
@@ -896,7 +980,7 @@ $('retryBtn').addEventListener('click', async () => {
   try { await finishInvoice(); } catch (err) { setStatus(err.message, 'error'); showResult(true); }
   $('retryBtn').disabled = false;
 });
-$('newBtn').addEventListener('click', () => {
+function resetNewInvoiceForm() {
   $('client').value = '';
   $('date').value = todayISO();
   $('due').value = '';
@@ -909,7 +993,9 @@ $('newBtn').addEventListener('click', () => {
   setStatus('');
   drawItems();
   refresh();
-});
+}
+$('newBtn').addEventListener('click', () => { exitEditMode(); resetNewInvoiceForm(); });
+$('editCancelBtn').addEventListener('click', () => { exitEditMode(); resetNewInvoiceForm(); });
 $('client').addEventListener('input', refresh);
 $('date').addEventListener('input', refresh);
 $('due').addEventListener('input', refresh);
