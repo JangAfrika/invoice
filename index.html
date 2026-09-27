@@ -164,6 +164,10 @@
     .sg-fonts label { margin: 0; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; min-height: 58px; overflow: hidden; }
     .sg-fonts label.on { border-color: var(--navy); box-shadow: 0 0 0 1px var(--navy); }
     .sg-fonts input { width: auto; margin: 0; }
+    .edit-banner { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #fff1cc; color: #6b4a05; border: 1px solid #e9c46a; border-radius: 8px; padding: 8px 12px; font-size: 13px; margin-bottom: 14px; }
+    .edit-banner b { font-weight: 700; }
+    .edit-banner button { padding: 4px 10px; font-size: 12.5px; }
+    button.edit { background: #fff; border: 1px solid var(--line); color: var(--ink); }
     .sg-fonts span { font-size: 30px; line-height: 1.1; white-space: nowrap; color: #0b1f4d; }
     #sgError { color: var(--red); font-size: 13px; min-height: 18px; margin: 4px 0 6px; }
     #payError, #pwError { color: var(--red); font-size: 13px; min-height: 18px; margin-bottom: 6px; }
@@ -309,6 +313,10 @@
   <!-- ============ NEW INVOICE ============ -->
   <main class="layout" id="newView">
     <section class="panel">
+      <div class="edit-banner" id="editBanner" hidden>
+        Editing invoice <b id="editBannerNo"></b> — changes must be signed again.
+        <button type="button" id="editCancelBtn">Cancel edit</button>
+      </div>
       <label>Bill to
         <input id="client" type="text" placeholder="Client name">
       </label>
