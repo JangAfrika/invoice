@@ -1,7 +1,7 @@
 /* ============ SETTINGS (edit these) ============ */
 const CONFIG = {
   // Paste your Apps Script Web App URL here (ends with /exec)
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw-QTI2ehQSg5EiA_RVRl47N4l-QTLzVKo0cynqowMgOrynWDNe1KOCLu-tH5KHbYw5/exec',
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzZ0Q-oTSbU_XKfCC3EbiM0D2hYOixF1erGc9LaCRR_FsSLdoT1rC539Lo8uLnYAhDl/exec',
 
   COMPANY: {
     name: 'JangAfrica',
@@ -316,11 +316,16 @@ async function post(payload) {
     throw new Error('Add your Apps Script Web App URL in script.js first.');
   }
   // text/plain avoids the CORS preflight that Apps Script does not support
-  const res = await fetch(CONFIG.SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload)
-  });
+  let res;
+  try {
+    res = await fetch(CONFIG.SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    throw new Error(navigator.onLine ? 'Could not reach the server. Check your connection and try again.' : 'You are offline. Connect to the internet to continue.');
+  }
   let out;
   try { out = await res.json(); } catch (e) { throw new Error('Unexpected reply from the server. Check that the Web App is deployed with access set to "Anyone".'); }
   return out;
@@ -1344,3 +1349,36 @@ $('pwSave').addEventListener('click', async () => {
     if (session) { session = null; showLogin(err.message); }   // e.g. offline: keep the saved sign-in so a reload can retry (expired sessions are handled by signOut)
   }
 })();
+
+
+/* ================= INSTALL AS AN APP ================= */
+let installEvent = null;
+const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+function showInstall(on) {
+  $('installBtn').hidden = !on;
+  $('installLink').hidden = !on;
+}
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();          // keep the event so the button can trigger the install prompt
+  installEvent = e;
+  if (!isStandalone()) showInstall(true);
+});
+window.addEventListener('appinstalled', () => { installEvent = null; showInstall(false); });
+
+async function installApp() {
+  if (installEvent) {
+    const ev = installEvent;
+    installEvent = null;
+    ev.prompt();
+    try { await ev.userChoice; } catch (e) { /* ignore */ }
+    showInstall(false);
+  } else if (isIOS()) {
+    $('iosDialog').showModal();
+  }
+}
+$('installBtn').addEventListener('click', installApp);
+$('installLink').addEventListener('click', installApp);
+$('iosClose').addEventListener('click', () => $('iosDialog').close());
+if (isIOS() && !isStandalone()) showInstall(true);   // iOS never fires beforeinstallprompt, so show the how-to button
