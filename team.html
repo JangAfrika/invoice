@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team · Invoice Manager</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12306b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Invoices">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body class="booting app">
+<div class="shell">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+  <header class="appbar"></header>
+
+  <main class="page">
+    <div class="page-head">
+      <h1>Team</h1>
+      <div class="grow"><button type="button" class="primary" id="addBtn">Add team member</button></div>
+    </div>
+    <div class="hint" style="margin:0 0 12px">Owner: everything. Admin: company profile, logo and staff. Staff: invoices, receipts and customers.</div>
+    <div class="msg" id="teamStatus" role="status"></div>
+    <div class="tablewrap">
+      <table class="inv">
+        <thead><tr><th>Name</th><th>Signs in with</th><th>Role</th><th>Status</th><th>Last sign-in</th><th>Actions</th></tr></thead>
+        <tbody id="teamBody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <dialog id="memberDialog">
+    <form class="dlg" id="memberForm" novalidate>
+      <h3 id="memberTitle">Add team member</h3>
+      <div class="info">They sign in with their email or username.</div>
+      <label class="req">Full name <input id="mName" type="text" maxlength="80"></label>
+      <div class="two">
+        <label>Email <input id="mEmail" type="email" maxlength="120"></label>
+        <label>Username (optional) <input id="mUsername" type="text" maxlength="60" autocapitalize="none" spellcheck="false"></label>
+      </div>
+      <label>Role
+        <select id="mRole"><option value="Staff">Staff</option><option value="Admin">Admin</option></select>
+      </label>
+      <label id="mPassWrap" class="req">Starting password (at least 8 characters; they can change it)
+        <input id="mPass" type="text" autocomplete="off">
+      </label>
+      <label class="check" id="mActiveWrap" hidden><input type="checkbox" id="mActive" checked> Can sign in</label>
+      <div class="err" id="memberError"></div>
+      <div class="btns">
+        <button type="button" id="memberCancel">Cancel</button>
+        <button type="submit" class="primary" id="memberSave">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="resetDialog">
+    <form class="dlg" id="resetForm" novalidate>
+      <h3>Set a new password</h3>
+      <div class="info" id="resetInfo"></div>
+      <label>New password (at least 8 characters) <input id="rPass" type="text" autocomplete="off"></label>
+      <div class="err" id="resetError"></div>
+      <div class="btns">
+        <button type="button" id="resetCancel">Cancel</button>
+        <button type="submit" class="primary" id="resetSave">Save password</button>
+      </div>
+    </form>
+  </dialog>
+  </div>
+</div>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/branding.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/pages/team.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tickets · System Admin</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#181a21">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="booting sys">
+
+  <main class="sys-page">
+    <div class="sys-head"><h1>Support tickets</h1></div>
+    <div class="toolbar"><div class="chips" id="chips"><button type="button" data-f="open" class="active">Open <b id="tOpen"></b></button><button type="button" data-f="done">Resolved <b id="tDone"></b></button><button type="button" data-f="all">All <b id="tAll"></b></button></div><input id="search" type="search" placeholder="Search subject, company, person" class="grow"></div>
+    <div class="msg" id="tStatus" role="status"></div>
+    <div class="tk-layout">
+      <div class="tk-list" id="tkList"></div>
+      <section class="box">
+        <div class="empty-state" id="tkEmpty">Choose a ticket.</div>
+        <div id="tkView" hidden>
+          <div class="sys-head" style="margin-bottom:4px"><h1 id="tkSubject" style="font-size:15px"></h1><div class="grow"><span id="tkStatusPill"></span></div></div>
+          <div class="hint" id="tkMeta"></div>
+          <div class="thread" id="tkThread"></div>
+          <form id="tkForm" novalidate>
+            <label>Reply (emailed to the person who opened it) <textarea id="tkReply" rows="4" maxlength="5000"></textarea></label>
+            <div class="two">
+              <label>Status after sending
+                <select id="tkNewStatus"><option value="">Waiting for reply (default)</option><option>Open</option><option>In progress</option><option>Waiting for reply</option><option>Resolved</option><option>Closed</option></select>
+              </label>
+              <div></div>
+            </div>
+            <div class="err" id="tkErr"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="submit" class="primary" id="tkSend">Send</button><button type="button" class="good" id="tkResolve">Mark resolved</button></div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/sys-layout.js"></script>
+  <script src="js/pages/sys-tickets.js"></script>
+</body>
+</html>

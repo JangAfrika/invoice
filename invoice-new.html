@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New invoice · Invoice Manager</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12306b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Invoices">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/documents.css">
+  <link rel="stylesheet" href="css/theme.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="booting app">
+<div class="shell">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+  <header class="appbar"></header>
+
+  <main class="layout">
+    <section class="panel">
+      <div class="edit-banner" id="editBanner" hidden>
+        <span>Editing invoice <b id="editBannerNo"></b>. Changes must be signed again.</span>
+        <button type="button" id="editCancelBtn">Cancel edit</button>
+      </div>
+      <label>Bill to
+        <input id="client" type="text" list="custList" placeholder="Customer name (pick or type a new one)" autocomplete="off">
+      </label>
+      <datalist id="custList"></datalist>
+      <div class="cust-info" id="custInfo"></div>
+      <div class="two">
+        <label>Invoice date <input id="date" type="date"></label>
+        <label>Due date (optional) <input id="due" type="date"></label>
+      </div>
+
+      <h2>Items</h2>
+      <div id="items"></div>
+      <button type="button" class="add" id="addItem">Add item</button>
+
+      <label style="margin-top:12px">Notes (optional, printed on the invoice)
+        <textarea id="notes" rows="2" maxlength="1000" placeholder="e.g. delivery details, special terms"></textarea>
+      </label>
+
+      <div class="total-line"><span>Total</span><span id="totalLabel">0.00</span></div>
+
+      <button type="button" class="primary" id="generate">Sign &amp; generate invoice</button>
+      <div class="hint" style="margin-top:6px">You sign first. After signing, the invoice is saved and you choose what to do: send it by email, download, or print.</div>
+      <div id="status" role="status"></div>
+
+      <div id="result">
+        <button type="button" class="primary" id="retryBtn" hidden>Try again</button>
+        <button type="button" class="primary outline" id="sendBtn" hidden>Send email</button>
+        <button type="button" id="downloadBtn">Download</button>
+        <button type="button" id="printBtn">Print</button>
+        <a class="btn" id="toInvoices" href="invoices.html">Go to invoices</a>
+        <button type="button" id="newBtn">New invoice</button>
+      </div>
+    </section>
+
+    <section class="preview">
+      <div class="sheet-wrap"><div id="invoice"></div></div>
+    </section>
+  </main>
+  </div>
+</div>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/branding.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/documents.js"></script>
+  <script src="js/signature.js"></script>
+  <script src="js/send.js"></script>
+  <script src="js/pages/invoice-new.js"></script>
+</body>
+</html>

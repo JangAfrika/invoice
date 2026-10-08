@@ -1,0 +1,78 @@
+/* ===== Light / dark scheme (company pages and sign-in pages). body.dark switches it on. ===== */
+body.dark {
+  --bg: #0f1218; --panel: #181c25; --line: #2a303c; --ink: #e6e9f0; --muted: #8f97a6;
+  --navy: #5b8cff; --accent: #5b8cff; --side: #141922; --side-ink: #aeb7c8;
+  --red: #ff6b6b; --green: #3ccf7a; --amber: #e0a63a;
+  color-scheme: dark;
+}
+body.dark.app { background: #0f1218; }
+body.dark a { color: #8fb0ff; }
+body.dark input, body.dark select, body.dark textarea { background: #1e232d; border-color: var(--line); color: var(--ink); }
+body.dark input::placeholder, body.dark textarea::placeholder { color: #6b7385; }
+body.dark button, body.dark .btn { background: #1e232d; border-color: var(--line); color: var(--ink); }
+body.dark button.primary, body.dark .btn.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+body.dark button.danger { color: #ff8a8a; border-color: #5a2f33; }
+body.dark button.outline, body.dark .btn.outline { color: #8fb0ff; border-color: #5b8cff; }
+body.dark button.ghost, body.dark a.ghost { background: transparent; }
+body.dark .chips button.active, body.dark .sg-tabs button.active { background: var(--navy); color: #fff; }
+body.dark table.inv th { background: #1d222c; }
+body.dark table.inv td, body.dark .people li, body.dark .tk-item { border-bottom-color: var(--line); }
+body.dark table.inv .acts button, body.dark table.inv .acts a { background: #1e232d; color: var(--ink); }
+body.dark table.inv .acts .pay { background: var(--green); color: #0b1a10; }
+body.dark .pill.pending, body.dark .pill.open, body.dark .pill.high, body.dark .pill.partial, body.dark .edit-banner { background: rgba(224,166,58,.16); color: #f1c36a; border-color: rgba(224,166,58,.35); }
+body.dark .pill.suspended, body.dark .pill.urgent, body.dark .pill.failed, body.dark .pill.unpaid { background: rgba(255,107,107,.16); color: #ff9a9a; }
+body.dark .pill.resolved, body.dark .pill.closed, body.dark .pill.ok, body.dark .pill.paid, body.dark .pill.active { background: rgba(60,207,122,.16); color: #5be08f; }
+body.dark .pill.in.progress, body.dark .pill.waiting, body.dark .pill.sent, body.dark .pill.role, body.dark .doccard .sentflag, body.dark .avatar { background: rgba(91,140,255,.2); color: #9db9ff; }
+body.dark .pill.cancelled, body.dark .pill.off { background: #2a303c; color: #aab2c2; }
+body.dark .pill.overdue { background: #c93a3a; color: #fff; }
+body.dark dialog { background: var(--panel); color: var(--ink); border: 1px solid var(--line); }
+body.dark dialog::backdrop { background: rgba(0,0,0,.65); }
+body.dark .dlg .btns a { background: #1e232d; }
+body.dark .card, body.dark .panel, body.dark .tablewrap, body.dark .chartcard, body.dark .getting-started, body.dark .tk-list { box-shadow: none; }
+body.dark .item { background: #1d222c; }
+body.dark .appbar { background: #141922; }
+body.dark .appsearch { background: #1e232d; }
+body.dark .topicon { color: #8fb0ff; }
+body.dark .topicon:hover, body.dark .act-menu a:hover, body.dark .doccard .menu button:hover, body.dark .doccard .menu a:hover, body.dark .tk-item:hover, body.dark .tk-item.on, body.dark .viewtoggle button.on { background: #232a38; color: #9db9ff; }
+body.dark .act-menu, body.dark .doccard .menu { background: #1d222c; border: 1px solid var(--line); }
+body.dark .act-menu a { color: var(--ink); }
+body.dark .pending-bar { background: #2a2414; border-bottom-color: #5a4a1e; color: #f1c36a; }
+body.dark .viewtoggle button { background: #1e232d; }
+body.dark .doccard { background: var(--panel); }
+body.dark .doccard .thumb { background: #12161d; }
+body.dark .doccard .paper { background: #f4f6fa; }
+body.dark .doccard .primary-act { background: transparent; color: #8fb0ff; }
+body.dark .doccard .primary-act.pay { color: #5be08f; border-color: #3ccf7a; }
+body.dark .profile-logo, body.dark .sg-saved img { background: #fff; }
+body.dark .sg-saved { background: #1d222c; }
+body.dark .sg-tabs button { background: #1e232d; color: var(--ink); }
+body.dark .bubble.me { background: rgba(91,140,255,.18); }
+body.dark .bubble.them { background: #1d222c; }
+body.dark .cap, body.dark .hint { color: var(--muted); }
+body.dark .side-install { color: #fff; }
+/* printed documents and signature pad always stay white (they are paper) and keep the company colour */
+body.dark .invoice-doc, body.dark .receipt-doc, body.dark .mini-doc { --navy: var(--brand); }
+body.dark .side-name, body.dark .side-brand { color: #fff; }
+body.dark .sheet-wrap, body.dark .prev-frame, body.dark #sgCanvas, body.dark .sg-prev, body.dark .logo-prev { color-scheme: light; color: #111; }
+body.dark .sg-prev, body.dark .logo-prev { color: #667085; }
+body.dark #sgCanvas { background-color: #fff; }
+
+/* sign-in, sign-up, forgot-password pages */
+body.dark .auth { background: linear-gradient(160deg, #0b0e14 0%, #151b2a 100%); }
+body.dark .auth-card { background: #181c25; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+body.dark .auth-card h1, body.dark .auth-card h2, body.dark .auth-links a { color: #9db9ff; }
+body.dark .auth-card .wideBtn { background: var(--navy); border-color: var(--navy); }
+body.dark .steps span { background: #232a38; }
+body.dark .steps span.on { background: var(--navy); color: #fff; }
+body.dark .policy { background: #1d222c; }
+
+/* the switch itself */
+.themebtn { position: fixed; top: 12px; right: 14px; z-index: 50; width: 34px; height: 34px; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,.9); border: 1px solid var(--line); color: #1c2230; }
+.themebtn .ic { width: 17px; height: 17px; }
+body.dark .themebtn { background: #232a38; color: #f1c36a; }
+
+body.dark .imdlg-icon { background: #1d2a48; color: #8fb0ff; }
+body.dark .imdlg-icon.danger { background: #3a2023; color: #ff8a8a; }
+body.dark .imdlg-detail { background: #1e232d; }
+body.dark .imdlg-detail.danger { background: #3a2023; color: #ffb3b3 !important; }
+body.dark button.danger-solid { background: #e04545; border-color: #e04545; color: #fff; }

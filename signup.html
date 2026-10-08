@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create a company account · Invoice Manager</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12306b">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+  <main class="auth">
+    <!-- step 1: company + owner -->
+    <form class="auth-card wide" id="signupForm" autocomplete="on" novalidate>
+      <div class="lg"><img src="logo.png" alt="" data-app-logo onerror="this.remove()"></div>
+      <h1>Create your company account</h1>
+      <div class="sub">Your own invoices, receipts, customers and logo. Free to start.</div>
+      <div class="steps"><span class="on">1. Company</span><span>2. Logo</span><span>3. Start invoicing</span></div>
+
+      <h2>Your company</h2>
+      <label class="req">Company name <input id="suCompany" type="text" maxlength="100" autocomplete="organization" required></label>
+      <div class="two">
+        <label>Phone <input id="suPhone" type="tel" maxlength="60" autocomplete="tel"></label>
+        <label>Company email <input id="suCoEmail" type="email" maxlength="120" placeholder="Same as yours if empty"></label>
+      </div>
+      <label>Address <input id="suAddress" type="text" maxlength="200" autocomplete="street-address" placeholder="e.g. Kairaba Avenue, Serrekunda"></label>
+      <div class="two">
+        <label>Industry <input id="suIndustry" type="text" maxlength="60" placeholder="e.g. IT services"></label>
+        <label>Country <input id="suCountry" type="text" maxlength="60" value="The Gambia"></label>
+      </div>
+      <div class="three">
+        <label>Currency symbol <input id="suCurrency" type="text" maxlength="6" value="D"></label>
+        <label>Currency name <input id="suCurName" type="text" maxlength="30" value="dalasi"></label>
+        <label>Invoice prefix <input id="suPrefix" type="text" maxlength="8" placeholder="e.g. ACM"></label>
+      </div>
+      <div class="hint">Invoices will be numbered <b id="suPrefixDemo">INV1001</b>, then 1002, 1003… You can change all of this later.</div>
+
+      <h2>You (the account owner)</h2>
+      <label class="req">Full name <input id="suName" type="text" maxlength="80" autocomplete="name" required></label>
+      <label class="req">Email (you sign in with this) <input id="suEmail" type="email" maxlength="120" autocomplete="email" required></label>
+      <div class="two">
+        <label class="req">Password <input id="suPass" type="password" autocomplete="new-password" minlength="8" required></label>
+        <label class="req">Confirm password <input id="suPass2" type="password" autocomplete="new-password" required></label>
+      </div>
+      <div class="hint">At least 8 characters.</div>
+      <label id="suCodeWrap" hidden>Sign-up code <input id="suCode" type="text" maxlength="60" autocomplete="off"></label>
+      <div class="policy" id="suPolicy"><b>Software policy</b><div id="suPolicyText">Use this service only for genuine business invoicing.</div></div>
+      <label class="check"><input type="checkbox" id="suAgree"> I accept the software policy</label>
+      <div class="hint" id="suApproval" hidden>New company accounts are checked by the system administrator. You can set up your profile and logo straight away, and start invoicing once approved (you get an email).</div>
+      <div class="hp" aria-hidden="true"><label>Leave empty <input id="suHp" type="text" tabindex="-1" autocomplete="off"></label></div>
+
+      <div class="err" id="suError" role="alert"></div>
+      <button type="submit" class="primary wideBtn" id="suBtn">Create account</button>
+      <div class="auth-links"><span>Already have an account?</span><a href="login.html"><b>Sign in</b></a></div>
+    </form>
+
+    <!-- step 2: logo -->
+    <section class="auth-card wide" id="logoStep" hidden>
+      <h1>Add your logo</h1>
+      <div class="sub">It appears on the app, your invoices and your receipts.</div>
+      <div class="steps"><span>1. Company</span><span class="on">2. Logo</span><span>3. Start invoicing</span></div>
+      <div class="edit-banner" id="logoPending" hidden style="margin-bottom:12px"><span><b>Account created.</b> It is waiting for approval by the system administrator. You will get an email when you can start invoicing.</span></div>
+      <div class="center">
+        <div style="display:inline-flex;width:240px;height:130px;border:1px dashed #aab4c8;border-radius:10px;align-items:center;justify-content:center;color:#667085;font-size:13px;background:repeating-conic-gradient(#f1f4fa 0% 25%,#fff 0% 50%) 0/16px 16px" id="logoPrev">No logo yet</div>
+      </div>
+      <label style="margin-top:14px">Choose your logo (PNG with a transparent background looks best)
+        <input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+      </label>
+      <div class="err" id="logoError" role="alert"></div>
+      <button type="button" class="primary wideBtn" id="logoBtn" disabled>Upload logo and continue</button>
+      <div class="auth-links"><span></span><a href="dashboard.html" id="skipLogo">Skip for now</a></div>
+    </section>
+  </main>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/image.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/pages/auth-common.js"></script>
+  <script src="js/pages/signup.js"></script>
+</body>
+</html>

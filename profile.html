@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Company profile · Invoice Manager</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12306b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Invoices">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body class="booting app">
+<div class="shell">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+  <header class="appbar"></header>
+
+  <main class="page">
+    <div class="msg" id="pfStatus" role="status"></div>
+    <section class="panel">
+      <div class="profile-hero">
+        <div class="profile-logo" id="pfLogo">No logo</div>
+        <div style="flex:1;min-width:220px">
+          <h2 id="pfName"></h2>
+          <div class="meta" id="pfMeta"></div>
+        </div>
+        <div class="grow" id="pfEdit" hidden><a class="btn primary" href="company.html">Edit profile</a></div>
+      </div>
+      <div class="edit-banner" id="pfPending" hidden style="margin:14px 0 0"></div>
+    </section>
+
+    <div class="cards" style="margin-top:14px" id="pfCards"></div>
+
+    <div class="profile-grid">
+      <section class="panel">
+        <h2>About</h2>
+        <p id="pfAbout" style="margin:0 0 14px;white-space:pre-wrap"></p>
+        <h2>Details</h2>
+        <dl class="facts" id="pfFacts"></dl>
+      </section>
+      <aside>
+        <section class="panel">
+          <h2>Team</h2>
+          <ul class="people" id="pfTeam"></ul>
+        </section>
+        <section class="panel" style="margin-top:14px">
+          <h2>Need help?</h2>
+          <div class="hint" style="margin:0 0 8px" id="pfSupport"></div>
+          <a class="btn" href="support.html?new=1">Ask the system administrator</a>
+        </section>
+      </aside>
+    </div>
+  </main>
+  </div>
+</div>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/branding.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/pages/profile.js"></script>
+</body>
+</html>

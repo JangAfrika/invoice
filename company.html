@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Company · Invoice Manager</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12306b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Invoices">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/documents.css">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body class="booting app">
+<div class="shell">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+  <header class="appbar"></header>
+
+  <main class="page">
+    <div class="page-head">
+      <h1>Company settings</h1>
+      <div class="grow"><a class="btn" href="profile.html">View profile</a><button type="button" class="primary" id="saveTop">Save changes</button></div>
+    </div>
+    <div class="msg" id="coStatus" role="status"></div>
+
+    <div class="settings">
+      <form id="coForm" novalidate>
+        <section class="panel">
+          <h2>Logo and colours</h2>
+          <div class="logo-box">
+            <div class="logo-prev" id="logoPrev">No logo yet</div>
+            <div class="logo-actions">
+              <label class="btn" style="margin:0;color:var(--ink)">Upload a new logo
+                <input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+              </label>
+              <button type="button" class="linkbtn" id="logoRemove" hidden>Remove logo</button>
+              <div class="hint" style="margin:0">PNG with a transparent background looks best. It is resized automatically.</div>
+            </div>
+          </div>
+          <div class="err" id="logoError" role="alert"></div>
+          <div class="two">
+            <label>Brand colour (top bar, headings, totals) <input id="fBrand" type="color" value="#12306b"></label>
+            <div>
+              <label style="margin-bottom:4px">Stripe across the top of documents</label>
+              <div class="stripes" id="stripes"></div>
+              <div class="hint" style="margin-top:6px"><button type="button" class="linkbtn" id="stripeAdd">Add a colour</button> · <button type="button" class="linkbtn" id="stripeClear">Use the brand colour only</button></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Business details</h2>
+          <label class="req">Company name <input id="fName" type="text" maxlength="100"></label>
+          <div class="two">
+            <label>Phone(s) <input id="fPhone" type="text" maxlength="60"></label>
+            <label>Email <input id="fEmail" type="email" maxlength="120"></label>
+          </div>
+          <label>Address <input id="fAddress" type="text" maxlength="200"></label>
+          <div class="two">
+            <label>Website <input id="fWebsite" type="text" maxlength="120"></label>
+            <label>Tax / registration number <input id="fTaxId" type="text" maxlength="40"></label>
+          </div>
+          <div class="two">
+            <label>Industry <input id="fIndustry" type="text" maxlength="60" placeholder="e.g. IT services, Retail"></label>
+            <label>Country <input id="fCountry" type="text" maxlength="60" placeholder="e.g. The Gambia"></label>
+          </div>
+          <label>About the company (shown on your company profile)
+            <textarea id="fAbout" rows="3" maxlength="1500"></textarea>
+          </label>
+          <label>Services (separate with commas; shown as a line under the letterhead)
+            <textarea id="fServices" rows="2" maxlength="600"></textarea>
+          </label>
+        </section>
+
+        <section class="panel">
+          <h2>Money and numbering</h2>
+          <div class="three">
+            <label>Currency symbol <input id="fCurrency" type="text" maxlength="6"></label>
+            <label>Currency name <input id="fCurName" type="text" maxlength="30" placeholder="e.g. dalasi"></label>
+            <label>Smaller unit <input id="fCurMinor" type="text" maxlength="30" placeholder="e.g. butut"></label>
+          </div>
+          <div class="hint">Used for "Amount in words", e.g. <i id="wordsDemo"></i></div>
+          <div class="two">
+            <label>Invoice prefix <input id="fInvPrefix" type="text" maxlength="8"></label>
+            <label>Next invoice number <input id="fInvNext" type="number" min="1" step="1"></label>
+          </div>
+          <div class="two">
+            <label>Receipt prefix <input id="fRcPrefix" type="text" maxlength="8"></label>
+            <label>Next receipt number <input id="fRcNext" type="number" min="1" step="1"></label>
+          </div>
+          <div class="hint">Next numbers: <b id="numDemo"></b>. Numbers already used cannot be issued again.</div>
+          <label>Payment methods (separate with commas)
+            <input id="fMethods" type="text" maxlength="600" placeholder="Cash, Bank transfer, Wave">
+          </label>
+        </section>
+
+        <section class="panel">
+          <h2>Printed on every invoice</h2>
+          <label>Payment details (leave empty to hide)
+            <textarea id="fPayDetails" rows="2" maxlength="600" placeholder="e.g. Wave / Afrimoney: 000 0000 · Bank: …, Acc. name …"></textarea>
+          </label>
+          <label>Terms <textarea id="fTerms" rows="3" maxlength="1000"></textarea></label>
+          <label>Thank-you line <input id="fThanks" type="text" maxlength="200"></label>
+          <button type="submit" class="primary" id="saveBottom">Save changes</button>
+        </section>
+      </form>
+
+      <aside class="sticky-prev">
+        <div class="hint" style="margin:0 0 6px">Preview (updates as you type)</div>
+        <div class="prev-frame" id="prevFrame"><div id="prevDoc" class="mini-doc"></div></div>
+      </aside>
+    </div>
+  </main>
+  </div>
+</div>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/branding.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/documents.js"></script>
+  <script src="js/image.js"></script>
+  <script src="js/pages/company.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Receipts · Invoice Manager</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12306b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Invoices">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/documents.css">
+  <link rel="stylesheet" href="css/theme.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="booting app">
+<div class="shell">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+  <header class="appbar"></header>
+
+  <main class="page">
+    <div class="page-head"><h1>Payments in</h1><div class="grow"><a class="btn" href="invoices.html?f=outstanding">Record a payment</a></div></div>
+    <div class="cards c3">
+      <div class="card"><div class="k">Receipts issued</div><div class="v" id="rCount">0</div><div class="s" id="rCountS"></div></div>
+      <div class="card green"><div class="k">Total received</div><div class="v" id="rTotal">0.00</div><div class="s" id="rTotalS"></div></div>
+      <div class="card"><div class="k">Received this month</div><div class="v" id="rMonth">0.00</div><div class="s" id="rMonthS"></div></div>
+    </div>
+    <div class="toolbar">
+      <input id="rSearch" type="search" placeholder="Search receipt, invoice or customer">
+      <div class="viewtoggle grow" id="viewToggle"><button type="button" data-view="grid" title="Grid view" aria-label="Grid view">GRID</button><button type="button" data-view="list" title="List view" aria-label="List view">LIST</button></div>
+      <button type="button" id="reloadBtn">Refresh</button>
+    </div>
+    <div class="msg" id="receiptsStatus" role="status"></div>
+    <div class="docgrid" id="gridView"></div>
+    <div class="tablewrap" id="tableView" hidden>
+      <table class="inv">
+        <thead><tr>
+          <th>Receipt</th><th>Invoice</th><th>Customer</th>
+          <th class="num">Amount</th><th class="num">Balance after</th><th>Method</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="rcBody"></tbody>
+      </table>
+    </div>
+  </main>
+  </div>
+</div>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/branding.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/documents.js"></script>
+  <script src="js/signature.js"></script>
+  <script src="js/payments.js"></script>
+  <script src="js/send.js"></script>
+  <script src="js/pages/receipts.js"></script>
+</body>
+</html>

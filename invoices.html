@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoices · Invoice Manager</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12306b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Invoices">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/documents.css">
+  <link rel="stylesheet" href="css/theme.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="booting app">
+<div class="shell">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+  <header class="appbar"></header>
+
+  <main class="page">
+    <div class="page-head">
+      <h1>Invoices</h1>
+      <div class="grow"><a class="btn primary" href="invoice-new.html">New invoice</a></div>
+    </div>
+    <div class="cards">
+      <div class="card"><div class="k">Total invoiced</div><div class="v" id="sInvoiced">0.00</div><div class="s" id="sInvoicedN"></div></div>
+      <div class="card green"><div class="k">Collected</div><div class="v" id="sPaid">0.00</div><div class="s" id="sPaidN"></div></div>
+      <div class="card"><div class="k">Outstanding</div><div class="v" id="sOut">0.00</div><div class="s" id="sOutN"></div></div>
+      <div class="card red"><div class="k">Overdue</div><div class="v" id="sOver">0.00</div><div class="s" id="sOverN"></div></div>
+    </div>
+
+    <div class="edit-banner" id="custFilter" hidden style="margin-top:16px">
+      <span>Showing invoices for <b id="custFilterName"></b></span>
+      <a class="btn" href="invoices.html" style="padding:4px 10px;font-size:12.5px">Show all</a>
+    </div>
+
+    <div class="toolbar">
+      <div class="chips" id="chips">
+        <button type="button" data-f="all" class="active">All</button>
+        <button type="button" data-f="outstanding">Not fully paid</button>
+        <button type="button" data-f="paid">Paid</button>
+        <button type="button" data-f="overdue">Overdue</button>
+        <button type="button" data-f="cancelled">Cancelled</button>
+      </div>
+      <input id="search" type="search" placeholder="Search invoice no. or customer" class="grow">
+      <div class="viewtoggle" id="viewToggle"><button type="button" data-view="grid" title="Grid view" aria-label="Grid view">GRID</button><button type="button" data-view="list" title="List view" aria-label="List view">LIST</button></div>
+      <button type="button" id="reloadBtn">Refresh</button>
+    </div>
+    <div class="msg" id="trackStatus" role="status"></div>
+
+    <div class="docgrid" id="gridView"></div>
+    <div class="tablewrap" id="tableView" hidden>
+      <table class="inv">
+        <thead><tr>
+          <th>Invoice</th><th>Customer</th><th>Due</th>
+          <th class="num">Total</th><th class="num">Paid</th><th class="num">Balance</th>
+          <th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="invBody"></tbody>
+      </table>
+    </div>
+  </main>
+  </div>
+</div>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/branding.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/documents.js"></script>
+  <script src="js/signature.js"></script>
+  <script src="js/payments.js"></script>
+  <script src="js/send.js"></script>
+  <script src="js/pages/invoices.js"></script>
+</body>
+</html>

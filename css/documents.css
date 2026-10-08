@@ -1,0 +1,93 @@
+/* ===== Printed documents: shared letterhead, invoice (A4) and receipt (A5 landscape) ===== */
+.doc-stripe { position: absolute; left: 0; right: 0; top: 0; height: 9px; background: var(--navy); }
+.doc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+.doc-brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.doc-brand img { display: block; max-width: 140px; max-height: 74px; object-fit: contain; }
+.doc-brand .name { font-family: Arial, sans-serif; font-size: 25px; font-weight: 700; color: var(--navy); line-height: 1.1; }
+.doc-brand .loc { font-size: 13px; margin-top: 3px; color: #222; }
+.doc-brand .ct { font-size: 12px; margin-top: 2px; color: #4a5568; line-height: 1.45; }
+.doc-id { text-align: right; flex: none; }
+.doc-id .type { font-size: 30px; font-weight: 700; letter-spacing: 3px; color: var(--navy); line-height: 1; }
+.doc-meta { margin: 8px 0 0 auto; border-collapse: collapse; font-size: 13px; }
+.doc-meta td { padding: 2px 0 2px 14px; text-align: right; }
+.doc-meta td:first-child { color: #667085; }
+.doc-meta td:last-child { font-weight: 700; }
+.doc-rule { height: 2px; background: var(--navy); margin-top: 14px; }
+.dk { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #667085; font-weight: 700; }
+
+/* ---- invoice (A4 @ 96dpi = 794 x 1123) ---- */
+.invoice-doc {
+  position: relative; width: 794px; min-height: 1120px; padding: 44px 44px 34px; background: #fff; color: #111;
+  font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 14.5px; display: flex; flex-direction: column;
+}
+.svc { background: #f1f4fa; color: #3d4a66; font-size: 11px; text-align: center; padding: 6px 12px; }
+.bill { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-top: 20px; }
+.bill .who { font-size: 19px; font-weight: 700; margin-top: 4px; }
+.bill .who.ph { color: #aab1bf; font-weight: 400; }
+.bill .whodet { font-size: 12.5px; color: #4a5568; line-height: 1.45; margin-top: 2px; }
+.due-box { text-align: right; }
+.due-box .amt { font-size: 24px; font-weight: 700; color: var(--navy); margin-top: 2px; }
+.due-box .dd { font-size: 12.5px; color: #4a5568; margin-top: 2px; }
+table.items { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 14px; }
+table.items th { background: var(--navy); color: #fff; font-weight: 600; font-size: 12.5px; letter-spacing: .4px; padding: 9px 10px; text-align: left; }
+table.items td { padding: 9px 10px; border-bottom: 1px solid #e3e7ef; vertical-align: top; }
+table.items tbody tr:nth-child(even) td { background: #f7f9fc; }
+table.items .c { text-align: center; }
+table.items .num { text-align: right; }
+table.items td.empty-row { text-align: center; color: #aab1bf; padding: 26px 10px; }
+.sum { display: flex; justify-content: space-between; align-items: flex-start; gap: 30px; margin-top: 18px; }
+.sum-left { flex: 1; font-size: 13px; line-height: 1.5; }
+.sum-left .words { font-style: italic; margin-top: 3px; }
+.totals { width: 290px; flex: none; }
+.totals .row { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #e3e7ef; font-size: 14.5px; }
+.totals .grand { background: var(--navy); color: #fff; font-weight: 700; font-size: 16.5px; border-bottom: none; }
+.doc-foot { margin-top: auto; padding-top: 26px; }
+.terms { border-top: 1px solid #d5dae3; padding-top: 10px; font-size: 12px; color: #3d4a66; line-height: 1.55; }
+.terms .dk { margin-top: 6px; }
+.sigs { display: flex; gap: 48px; margin-top: 52px; font-size: 12.5px; }
+.sigs div { flex: 1; border-top: 1px solid #444; padding-top: 4px; text-align: center; position: relative; }
+.sig-img { position: absolute; left: 0; right: 0; bottom: 100%; margin-bottom: 3px; text-align: center; line-height: 0; }
+.sig-img img { max-height: 48px; max-width: 200px; }
+.sig-date { display: block; font-size: 11px; color: #667085; margin-top: 1px; }
+.thanks { text-align: center; margin-top: 20px; font-size: 13px; font-weight: 700; color: var(--navy); }
+
+/* ---- receipt (A5 landscape @ 96dpi = 794 x 559) ---- */
+#receiptHost { position: absolute; left: -10000px; top: 0; }
+.receipt-doc {
+  position: relative; width: 794px; height: 556px; padding: 26px 40px 20px; background: #fff; color: #111; overflow: hidden;
+  font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 15px; display: flex; flex-direction: column;
+}
+.receipt-doc .doc-brand img { max-height: 58px; max-width: 120px; }
+.receipt-doc .doc-brand .name { font-size: 22px; }
+.receipt-doc .doc-id .type { font-size: 26px; }
+.receipt-doc .doc-meta { font-size: 12.5px; margin-top: 5px; }
+.receipt-doc .doc-rule { margin-top: 10px; }
+.receipt-doc .rc-rows { margin-top: 8px; }
+.receipt-doc .rc-row { display: flex; align-items: flex-end; gap: 10px; margin: 8px 0; }
+.receipt-doc .rc-row .k2 { width: 150px; flex: none; color: #4a5568; font-size: 14px; }
+.receipt-doc .rc-row .v { flex: 1; border-bottom: 1px dotted #777; padding: 0 4px 1px; font-weight: 600; min-height: 22px; }
+.receipt-doc .rc-bottom { display: flex; gap: 20px; margin-top: 10px; align-items: stretch; }
+.receipt-doc .rc-amount { flex: none; width: 250px; background: var(--navy); color: #fff; border-radius: 6px; padding: 10px 14px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+.receipt-doc .rc-amount .lbl { font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; opacity: .85; }
+.receipt-doc .rc-amount .big { font-size: 30px; font-weight: 700; }
+.receipt-doc .rc-sum { flex: 1; border-collapse: collapse; font-size: 14.5px; }
+.receipt-doc .rc-sum td { border-bottom: 1px solid #e3e7ef; padding: 6px 10px; }
+.receipt-doc .rc-sum tr:last-child td { border-bottom: none; background: #f1f4fa; }
+.receipt-doc .rc-sum td:last-child { text-align: right; width: 130px; }
+.receipt-doc .rc-stamp { margin-top: 10px; font-weight: 700; font-size: 15px; letter-spacing: .5px; }
+.receipt-doc .rc-stamp span { display: inline-block; border: 2px solid; border-radius: 4px; padding: 2px 12px; }
+.receipt-doc .rc-stamp .full { color: var(--green); }
+.receipt-doc .rc-stamp .part { color: #b7791f; }
+.receipt-doc .rc-thanks { margin-top: auto; text-align: center; font-size: 13px; font-weight: 700; color: var(--navy); }
+.receipt-doc .rc-sign { margin-top: 46px; display: flex; justify-content: space-between; gap: 40px; font-size: 13px; }
+.receipt-doc .rc-sign div { flex: 1; border-top: 1px solid #444; padding-top: 4px; text-align: center; position: relative; }
+.receipt-doc .sig-img img { max-height: 42px; }
+
+@media print {
+  @page { size: A4; margin: 0; }
+  body { background: #fff; }
+  .topbar, .side, .appbar, .pending-bar, .panel, .page, dialog, #receiptHost, .no-print { display: none !important; }
+  .layout, .shell { display: block; padding: 0; }
+  .preview { overflow: visible; }
+  .sheet-wrap { box-shadow: none; }
+}

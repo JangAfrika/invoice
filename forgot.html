@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reset password · Invoice Manager</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <meta name="theme-color" content="#12306b">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+  <main class="auth">
+    <form class="auth-card" id="askForm" novalidate>
+      <div class="lg"><img src="logo.png" alt="" data-app-logo onerror="this.remove()"></div>
+      <h1>Forgot your password?</h1>
+      <div class="sub">We email you a 6-digit code to set a new one.</div>
+      <label>Email you sign in with <input id="fgEmail" type="email" autocomplete="email" required></label>
+      <div class="err" id="askError" role="alert"></div>
+      <button type="submit" class="primary wideBtn" id="askBtn">Email me a code</button>
+      <div class="auth-links"><a href="login.html">Back to sign in</a><a href="#" id="haveCode">I already have a code</a></div>
+      <div class="hint" style="margin-top:14px">Signed in with a username and no email? Ask your company owner or admin to reset your password on the Team page.</div>
+    </form>
+
+    <form class="auth-card" id="resetForm" novalidate hidden>
+      <h1>Set a new password</h1>
+      <div class="sub" id="resetSub">Enter the code from your email.</div>
+      <label>Email <input id="rsEmail" type="email" autocomplete="email" required></label>
+      <label>6-digit code <input id="rsCode" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" required></label>
+      <div class="two">
+        <label>New password <input id="rsPass" type="password" autocomplete="new-password" required></label>
+        <label>Confirm <input id="rsPass2" type="password" autocomplete="new-password" required></label>
+      </div>
+      <div class="err" id="rsError" role="alert"></div>
+      <button type="submit" class="primary wideBtn" id="rsBtn">Save password and sign in</button>
+      <div class="auth-links"><a href="#" id="backAsk">Send a new code</a><a href="login.html">Back to sign in</a></div>
+    </form>
+  </main>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/pages/auth-common.js"></script>
+  <script src="js/pages/forgot.js"></script>
+</body>
+</html>

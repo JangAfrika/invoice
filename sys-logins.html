@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign-ins · System Admin</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#181a21">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="booting sys">
+
+  <main class="sys-page">
+    <div class="sys-head"><h1>Sign-ins</h1><div class="grow"><button type="button" id="reloadBtn">Refresh</button></div></div>
+    <div class="stats">
+      <div class="stat green"><span class="icon"></span><span class="txt"><div class="num" id="sOk">0</div><div class="lbl">Successful today</div></span></div>
+      <div class="stat purple"><span class="icon"></span><span class="txt"><div class="num" id="sPeople">0</div><div class="lbl">People signed in today</div></span></div>
+      <div class="stat yellow"><span class="icon"></span><span class="txt"><div class="num" id="sBad">0</div><div class="lbl">Failed today</div></span></div>
+      <div class="stat blue"><span class="icon"></span><span class="txt"><div class="num" id="sWeek">0</div><div class="lbl">Failed in 7 days</div></span></div>
+    </div>
+    <div class="box" id="hot" hidden style="margin-top:16px;border-color:var(--c-red)"></div>
+    <div class="toolbar" style="margin-top:18px"><div class="chips" id="chips"><button type="button" data-f="all" class="active">All</button><button type="button" data-f="ok">Successful</button><button type="button" data-f="bad">Failed</button></div><input id="search" type="search" placeholder="Search login, company, device" class="grow"></div>
+    <div class="msg" id="lStatus" role="status"></div>
+    <section class="box" style="padding:6px 8px"><div class="tblwrap"><table class="tbl">
+      <thead><tr><th>When</th><th>Who</th><th>Company</th><th>Result</th><th>Reason</th><th>Device</th></tr></thead>
+      <tbody id="lBody"></tbody></table></div></section>
+    <div class="hint" style="margin-top:8px">Google Apps Script cannot see IP addresses, so the browser, system and time zone are shown instead.</div>
+  </main>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/sys-layout.js"></script>
+  <script src="js/pages/sys-logins.js"></script>
+</body>
+</html>

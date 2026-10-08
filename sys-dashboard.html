@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard · System Admin</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#181a21">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body class="booting sys">
+
+  <main class="sys-page">
+    <div class="sys-head"><h1>Overview</h1><div class="grow"><span class="range" id="signins"></span><button type="button" id="reloadBtn">Refresh</button></div></div>
+    <div class="msg" id="dashStatus" role="status"></div>
+    <div class="stats" id="stats"></div>
+    <section class="box chartbox">
+      <h2>Activity overview <span class="grow"><span class="range">Last 30 days</span></span></h2>
+      <div class="cv"><canvas id="chActivity"></canvas></div>
+    </section>
+    <div class="boxes">
+      <section class="box"><h2>Waiting for approval <a class="grow" href="sys-companies.html?status=Pending">All companies</a></h2>
+        <div class="tblwrap"><table class="tbl"><tbody id="pendingBody"></tbody></table></div></section>
+      <section class="box"><h2>Open tickets <a class="grow" href="sys-tickets.html">Inbox</a></h2>
+        <div class="tblwrap"><table class="tbl"><tbody id="ticketBody"></tbody></table></div></section>
+    </div>
+    <section class="box" style="margin-top:20px"><h2>Latest sign-ins <a class="grow" href="sys-logins.html">All sign-ins</a></h2>
+      <div class="tblwrap"><table class="tbl"><tbody id="loginBody"></tbody></table></div></section>
+  </main>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/sys-layout.js"></script>
+  <script src="js/pages/sys-dashboard.js"></script>
+</body>
+</html>
