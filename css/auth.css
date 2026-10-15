@@ -1,0 +1,20 @@
+/* ===== Sign in, sign up, forgotten password ===== */
+.auth { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: linear-gradient(160deg, #12306b 0%, #0b1d47 100%); }
+.auth-card { width: min(420px, 100%); background: #fff; border-radius: 12px; padding: 30px 28px 26px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.auth-card.wide { width: min(620px, 100%); }
+.auth-card .lg { text-align: center; }
+.auth-card .lg img { max-height: 70px; max-width: 200px; object-fit: contain; margin-bottom: 8px; }
+.auth-card h1 { text-align: center; margin: 4px 0 2px; font-size: 19px; color: #12306b; }
+.auth-card .sub { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+.auth-card h2 { font-size: 12px; margin: 18px 0 10px; color: #12306b; text-transform: uppercase; letter-spacing: .6px; }
+.auth-card .wideBtn { width: 100%; margin-top: 4px; padding: 11px 14px; background: #12306b; border-color: #12306b; }
+.auth-links { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 14px; font-size: 13px; }
+.auth-links a { color: #12306b; }
+.steps { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; font-size: 12.5px; color: var(--muted); }
+.steps span { padding: 3px 10px; border-radius: 999px; background: #eef1f6; }
+.steps span.on { background: #12306b; color: #fff; }
+.hp { position: absolute; left: -5000px; width: 1px; height: 1px; overflow: hidden; }
+.center { text-align: center; }
+.policy { border: 1px solid var(--line); background: #f8f9fc; border-radius: 6px; padding: 8px 10px; font-size: 11.5px; color: var(--muted); max-height: 110px; overflow: auto; margin: 6px 0 8px; white-space: pre-wrap; }
+.policy b { color: var(--ink); display: block; margin-bottom: 2px; }
+.edit-banner { display: flex; align-items: center; gap: 10px; background: #fff1cc; color: #6b4a05; border: 1px solid #e9c46a; border-radius: 8px; padding: 8px 12px; font-size: 12px; }
