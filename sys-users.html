@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Users · System Admin</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#181a21">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="booting sys">
+
+  <main class="sys-page">
+    <div class="sys-head"><h1>Users</h1><div class="grow"><button type="button" id="reloadBtn">Refresh</button></div></div>
+    <div class="toolbar"><div class="chips" id="chips"><button type="button" data-f="all" class="active">All <b id="uAll"></b></button><button type="button" data-f="online">Online now <b id="uOnline"></b></button><button type="button" data-f="off">Switched off <b id="uOff"></b></button><button type="button" data-f="locked">Locked <b id="uLocked"></b></button><button type="button" data-f="sys">System admins</button></div><input id="search" type="search" placeholder="Search name, email, company" class="grow"></div>
+    <div class="msg" id="uStatus" role="status"></div>
+    <section class="box" style="padding:6px 8px"><div class="tblwrap"><table class="tbl">
+      <thead><tr><th>User</th><th>Company</th><th>Role</th><th>Status</th><th>Last sign-in</th><th>Created</th><th>Actions</th></tr></thead>
+      <tbody id="uBody"></tbody></table></div></section>
+  </main>
+  <dialog id="pwDialog">
+    <form class="dlg" id="pwForm" novalidate>
+      <h3>Set a new password</h3>
+      <div class="info" id="pwInfo"></div>
+      <label>New password (at least 8 characters) <input id="pwNew" type="text" autocomplete="off"></label>
+      <div class="err" id="pwError"></div>
+      <div class="btns"><button type="button" id="pwCancel">Cancel</button><button type="submit" class="primary">Save password</button></div>
+    </form>
+  </dialog>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/sys-layout.js"></script>
+  <script src="js/pages/sys-users.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Support · Invoice Manager</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12306b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Invoices">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body class="booting app">
+<div class="shell">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+  <header class="appbar"></header>
+
+  <main class="page">
+    <div class="page-head">
+      <h1>Support</h1>
+      <div class="grow"><button type="button" class="primary" id="newBtn">New ticket</button></div>
+    </div>
+    <div class="hint" style="margin:0 0 12px" id="supInfo">Ask the system administrator for help, report a problem or request a feature. You get an email when they answer.</div>
+    <div class="msg" id="supStatus" role="status"></div>
+    <div class="tk-layout">
+      <div class="tk-list" id="tkList"></div>
+      <section class="panel" id="tkPane">
+        <div class="empty-state" id="tkEmpty">Choose a ticket, or open a new one.</div>
+        <div id="tkView" hidden>
+          <div class="page-head" style="margin-bottom:4px">
+            <h1 id="tkSubject" style="font-size:15px"></h1>
+            <div class="grow"><span class="pill" id="tkStatus"></span></div>
+          </div>
+          <div class="hint" id="tkMeta" style="margin:0"></div>
+          <div class="thread" id="tkThread"></div>
+          <form id="tkReplyForm" novalidate>
+            <label>Your reply <textarea id="tkReply" rows="3" maxlength="5000"></textarea></label>
+            <div class="err" id="tkReplyErr"></div>
+            <div class="btns" style="display:flex;gap:8px;flex-wrap:wrap">
+              <button type="submit" class="primary" id="tkReplyBtn">Send reply</button>
+              <button type="button" id="tkCloseBtn">Mark as solved</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="tkDialog">
+    <form class="dlg" id="tkForm" novalidate>
+      <h3>New support ticket</h3>
+      <div class="info">The system administrator gets it by email.</div>
+      <label class="req">Subject <input id="tSubject" type="text" maxlength="150"></label>
+      <div class="two">
+        <label>Category <select id="tCategory"><option>Question</option><option>Problem</option><option>Account</option><option>Billing</option><option>Feature request</option><option>Other</option></select></label>
+        <label>Priority <select id="tPriority"><option>Low</option><option selected>Normal</option><option>High</option><option>Urgent</option></select></label>
+      </div>
+      <label class="req">Describe it <textarea id="tBody" rows="5" maxlength="5000" placeholder="What happened, what you expected, and any invoice numbers involved."></textarea></label>
+      <div class="err" id="tError"></div>
+      <div class="btns">
+        <button type="button" id="tCancel">Cancel</button>
+        <button type="submit" class="primary" id="tSave">Send ticket</button>
+      </div>
+    </form>
+  </dialog>
+  </div>
+</div>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/branding.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/pages/support.js"></script>
+</body>
+</html>

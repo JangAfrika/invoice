@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My account · Invoice Manager</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12306b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Invoices">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body class="booting app">
+<div class="shell">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+  <header class="appbar"></header>
+
+  <main class="page" style="max-width:760px">
+    <div class="page-head"><h1>My account</h1></div>
+
+    <section class="panel">
+      <h2>My details</h2>
+      <form id="profileForm" novalidate>
+        <label>Full name (printed as "Issued by" on invoices) <input id="pName" type="text" maxlength="80"></label>
+        <label>Email <input id="pEmail" type="email" maxlength="120"></label>
+        <div class="hint" id="pInfo"></div>
+        <div class="err" id="profileError"></div>
+        <button type="submit" class="primary" id="profileSave">Save details</button>
+      </form>
+    </section>
+
+    <section class="panel" style="margin-top:16px">
+      <h2>Change password</h2>
+      <form id="pwForm" novalidate>
+        <label>Current password <input id="pwOld" type="password" autocomplete="current-password"></label>
+        <div class="two">
+          <label>New password <input id="pwNew" type="password" autocomplete="new-password"></label>
+          <label>Confirm new password <input id="pwNew2" type="password" autocomplete="new-password"></label>
+        </div>
+        <div class="hint">At least 8 characters. Changing it signs you out on every other device.</div>
+        <div class="err" id="pwError"></div>
+        <button type="submit" class="primary" id="pwSave">Save password</button>
+      </form>
+    </section>
+
+    <section class="panel" style="margin-top:16px">
+      <h2>My signature on this device</h2>
+      <div id="sigNone" class="hint" style="margin:0 0 10px">No signature is saved on this device. You are asked to sign when you create an invoice or receipt.</div>
+      <div id="sigHas" hidden>
+        <div class="logo-prev" style="width:240px;height:90px;margin-bottom:10px"><img id="sigImg" alt="Saved signature"></div>
+        <button type="button" id="sigForget" class="danger">Remove saved signature</button>
+      </div>
+      <button type="button" id="sigNew" style="margin-top:6px">Create a signature now</button>
+    </section>
+
+    <section class="panel" style="margin-top:16px">
+      <h2>Company</h2>
+      <div id="coLine" class="hint" style="margin:0"></div>
+    </section>
+  </main>
+  </div>
+</div>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/branding.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/signature.js"></script>
+  <script src="js/pages/account.js"></script>
+</body>
+</html>

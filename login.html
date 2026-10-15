@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · Invoice Manager</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12306b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Invoices">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+  <main class="auth">
+    <form class="auth-card" id="loginForm" autocomplete="on">
+      <div class="lg"><img src="logo.png" alt="" data-app-logo onerror="this.remove()"></div>
+      <h1 data-app-name>Invoice Manager</h1>
+      <div class="sub">Sign in to your account</div>
+      <label>Email or username
+        <input id="loginUser" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+      </label>
+      <label>Password
+        <input id="loginPass" type="password" autocomplete="current-password" required>
+      </label>
+      <label class="check"><input id="loginKeep" type="checkbox"> Keep me signed in on this device</label>
+      <div class="err" id="loginError" role="alert"></div>
+      <button type="submit" class="primary wideBtn" id="loginBtn">Sign in</button>
+      <div class="auth-links">
+        <a href="forgot.html">Forgot password?</a>
+        <a href="signup.html"><b>Create a company account</b></a>
+      </div>
+      <div class="center" style="margin-top:12px"><button type="button" class="linkbtn" id="installLink" hidden>Install this app on your device</button></div>
+    </form>
+  </main>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/pages/auth-common.js"></script>
+  <script src="js/pages/login.js"></script>
+</body>
+</html>
