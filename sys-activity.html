@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Activity · System Admin</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#181a21">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="booting sys">
+
+  <main class="sys-page">
+    <div class="sys-head"><h1>Activity</h1><div class="grow"><button type="button" id="reloadBtn">Refresh</button></div></div>
+    <div class="toolbar"><select id="coFilter"><option value="">All companies</option></select><input id="search" type="search" placeholder="Search person, action, details" class="grow"></div>
+    <div class="msg" id="aStatus" role="status"></div>
+    <section class="box" style="padding:6px 8px"><div class="tblwrap"><table class="tbl">
+      <thead><tr><th>When</th><th>Company</th><th>Who</th><th>What</th><th>Details</th></tr></thead>
+      <tbody id="aBody"></tbody></table></div></section>
+  </main>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/sys-layout.js"></script>
+  <script src="js/pages/sys-activity.js"></script>
+</body>
+</html>
