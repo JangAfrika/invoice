@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Audience · System Admin</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#181a21">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="booting sys">
+
+  <main class="sys-page">
+    <div class="sys-head"><h1>Audience</h1><div class="grow"><button type="button" id="csvBtn">Download people (CSV)</button> <button type="button" id="reloadBtn">Refresh</button></div></div>
+    <div class="stats">
+      <div class="stat blue"><span class="icon"></span><span class="txt"><div class="num" id="aTotal">0</div><div class="lbl">People</div></span></div>
+      <div class="stat green"><span class="icon"></span><span class="txt"><div class="num" id="aDone">0</div><div class="lbl">Gender and age given</div></span></div>
+      <div class="stat purple"><span class="icon"></span><span class="txt"><div class="num" id="aPos">0</div><div class="lbl">Shared their position</div></span></div>
+    </div>
+    <div class="msg" id="aStatus" role="status"></div>
+    <h2 class="aud-h">What this tells you</h2>
+    <div class="aud-ins" id="aInsights"></div>
+    <div class="aud-grid" id="aStalledWrap" hidden><section class="box" style="grid-column:1/-1"><h3 style="margin:0 0 8px;font-size:12.5px">Companies to contact (no invoice yet)</h3><div id="aStalled"></div></section></div>
+    <h2 class="aud-h">Who actually uses the app</h2>
+    <div class="hint" style="margin:-4px 0 8px">"Using it" means the person has created at least one invoice. A low rate in a group shows where people get stuck.</div>
+    <div class="aud-grid" id="aSegs"></div>
+    <h2 class="aud-h">The numbers</h2>
+    <div class="aud-grid" id="aCharts"></div>
+    <h2 class="aud-h">People</h2>
+    <div class="toolbar"><input id="search" type="search" placeholder="Search name, company, city, browser" class="grow"></div>
+    <section class="box" style="padding:6px 8px"><div class="tblwrap"><table class="tbl">
+      <thead><tr><th>Person</th><th>Gender</th><th>Age</th><th>Device</th><th>Browser / system</th><th>Place</th><th>Came from</th></tr></thead>
+      <tbody id="aBody"></tbody></table></div></section>
+    <div class="hint" style="margin-top:8px">Visible only to system administrators. Place comes from the time zone; an exact position (about 1 km) appears only when the person allowed their browser to share it. The origin is the page or campaign link of their first visit.</div>
+  </main>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/sys-layout.js"></script>
+  <script src="js/pages/sys-audience.js"></script>
+</body>
+</html>

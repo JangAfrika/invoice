@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings · System Admin</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#181a21">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="booting sys">
+
+  <main class="sys-page">
+    <div class="sys-head"><h1>Settings</h1></div>
+    <div class="msg" id="setStatus" role="status"></div>
+    <div class="settings-grid">
+      <form class="box" id="setForm" novalidate>
+        <h2>Notifications and access</h2>
+        <label>Send admin notifications to <input id="sNotify" type="email" maxlength="120"></label>
+        <div class="hint" id="sNotifyHint"></div>
+        <label class="check"><input type="checkbox" id="s_notifyNewCompany"> Email me when a company creates an account</label>
+        <label class="check"><input type="checkbox" id="s_notifyNewStaff"> ... when a company adds a team member</label>
+        <label class="check"><input type="checkbox" id="s_notifyNewClient"> ... when a company adds a client</label>
+        <label class="check"><input type="checkbox" id="s_notifyNewTicket"> ... when a ticket is opened or answered</label>
+        <label class="check" style="margin-top:14px"><input type="checkbox" id="s_requireApproval"> New companies need my approval before they can invoice</label>
+        <h2 style="margin-top:18px">Support</h2>
+        <label>Support email shown to companies (empty = the notification email) <input id="sSupport" type="email" maxlength="120"></label>
+        <label>Website address (for links in emails) <input id="sAppUrl" type="url" maxlength="300" placeholder="https://yourname.github.io/invoices"></label>
+        <h2 style="margin-top:18px">Software policy</h2>
+        <label>Shown on the sign-up page; companies must accept it <textarea id="sPolicy" rows="6" maxlength="4000"></textarea></label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="submit" class="primary" id="setSave">Save settings</button><button type="button" id="testBtn">Send a test email</button></div>
+      </form>
+      <div>
+        <section class="box">
+          <h2>System admins</h2>
+          <div class="tblwrap"><table class="tbl"><tbody id="adminBody"></tbody></table></div>
+          <form id="adminForm" novalidate style="margin-top:12px">
+            <div class="two"><label>Full name <input id="aName" type="text" maxlength="80"></label><label>Email <input id="aEmail" type="email" maxlength="120"></label></div>
+            <label>Starting password <input id="aPass" type="text" autocomplete="off"></label>
+            <button type="submit">Add system admin</button>
+            <div class="msg" id="adminStatus"></div>
+          </form>
+        </section>
+        <section class="box" id="me" style="margin-top:20px">
+          <h2>My account</h2>
+          <form id="meForm" novalidate>
+            <div class="two"><label>Full name <input id="meName" type="text" maxlength="80"></label><label>Email <input id="meEmail" type="email" maxlength="120"></label></div>
+            <button type="submit">Save</button> <span class="msg" id="meStatus"></span>
+          </form>
+          <form id="mePwForm" novalidate style="margin-top:14px">
+            <label>Current password <input id="mePwOld" type="password" autocomplete="current-password"></label>
+            <div class="two"><label>New password <input id="mePwNew" type="password" autocomplete="new-password"></label><label>Confirm <input id="mePwNew2" type="password" autocomplete="new-password"></label></div>
+            <button type="submit">Change password</button> <span class="msg" id="mePwStatus"></span>
+          </form>
+        </section>
+      </div>
+    </div>
+  </main>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/sys-layout.js"></script>
+  <script src="js/pages/sys-settings.js"></script>
+</body>
+</html>

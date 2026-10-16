@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTTWKT5W32"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XTTWKT5W32');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Companies · System Admin</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#181a21">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="booting sys">
+
+  <main class="sys-page">
+    <div class="sys-head"><h1>Companies</h1><div class="grow"><button type="button" id="reloadBtn">Refresh</button></div></div>
+    <div class="toolbar"><div class="chips" id="chips"><button type="button" data-f="all" class="active">All <b id="cAll"></b></button><button type="button" data-f="Pending">Pending <b id="cPending"></b></button><button type="button" data-f="Active">Active <b id="cActive"></b></button><button type="button" data-f="Suspended">Suspended <b id="cSuspended"></b></button></div><input id="search" type="search" placeholder="Search company, owner, email" class="grow"></div>
+    <div class="msg" id="coStatus" role="status"></div>
+    <section class="box" style="padding:6px 8px"><div class="tblwrap"><table class="tbl">
+      <thead><tr><th>Company</th><th>Owner</th><th class="num">Users</th><th class="num">Clients</th><th class="num">Invoices</th><th class="num">Invoiced</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+      <tbody id="coBody"></tbody></table></div></section>
+  </main>
+  <dialog id="susDialog">
+    <form class="dlg" id="susForm" novalidate>
+      <h3 id="susTitle">Suspend</h3>
+      <div class="info">Nobody in this company can sign in while it is suspended. Their data is kept.</div>
+      <label>Reason (the company sees this) <textarea id="susReason" rows="3" maxlength="1000" placeholder="e.g. Breach of the software policy: sending spam invoices."></textarea></label>
+      <label class="check"><input type="checkbox" id="susNotify" checked> Email the company</label>
+      <div class="err" id="susError"></div>
+      <div class="btns"><button type="button" id="susCancel">Cancel</button><button type="submit" class="primary" id="susSave">Suspend</button></div>
+    </form>
+  </dialog>
+  <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dialogs.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/sys-layout.js"></script>
+  <script src="js/pages/sys-companies.js"></script>
+</body>
+</html>
